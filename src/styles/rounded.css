@@ -1,0 +1,89 @@
+/* ============================================================
+   СКРУГЛЕНИЯ — надстройка над дизайн-системой донора.
+   В оригинале радиусы запрещены (`border-radius: 0` в предохранителях
+   global.css). Это осознанное отклонение по просьбе заказчика.
+   Подключается ПОСЛЕ global.css и blocks.css, поэтому перебивает нули.
+
+   Крутить здесь, в компонентах числа не дублировать.
+   ============================================================ */
+:root {
+  /* Все нули: вернулись к правилу донора «скругления 0».
+     Захочешь скругления обратно — крутить только эти четыре числа,
+     в компонентах радиусов нет. */
+  --radius-card: 0;      /* плашки, карточки, секции-плашки */
+  --radius-media: 0;     /* фото и видео */
+  --radius-input: 0;     /* поля ввода */
+  --radius-btn: 0;       /* кнопки */
+}
+
+/* --- Кнопки и пилюли --- */
+.btn,
+.header__cta {
+  border-radius: var(--radius-btn);
+}
+/* у ghost-кнопки своя рамка — скругляем вместе с ней */
+.btn--ghost { border-radius: var(--radius-btn); }
+
+/* --- Поля формы: у них снизу линия, поэтому радиус мелкий --- */
+.form input[type='text'],
+.form input[type='tel'],
+.form input[type='email'],
+textarea,
+select {
+  border-radius: var(--radius-input);
+}
+
+/* --- Карточки и плашки --- */
+.cards__item,
+.passport__card,
+.passport__card--feature,
+.mechanisms__item,
+.quit,
+.spec,
+.pressrows__row,
+.halves-split__col {
+  border-radius: var(--radius-card);
+}
+
+/* Бенто: внутренняя медиа не должна торчать из скруглённой карточки */
+.passport__card--feature { overflow: hidden; }
+
+/* --- Медиа ---
+   Кадры галереи (.bp-card) намеренно НЕ скругляем: они растут из угла
+   при скролле, и радиус на масштабируемой карточке плывёт. */
+.split__photo,
+.split__photo img,
+.hero__photo,
+.hero__photo video,
+.passport__video,
+.strip,
+.strip img,
+.herofull__video,
+.herofull__scrim {
+  border-radius: var(--radius-media);
+}
+
+/* Полноэкранное видео и полосу-strip скругляем только на десктопе:
+   на мобиле кадр идёт от края до края, там радиус смотрится обрезком */
+@media (max-width: 700px) {
+  .strip,
+  .strip img,
+  .herofull__video,
+  .herofull__scrim {
+    border-radius: 0;
+  }
+}
+
+/* Секция-плашка: у неё фон, значит тоже плашка */
+.section--surface {
+  border-radius: var(--radius-card);
+}
+
+/* Конфигуратор собран отдельным компонентом — его фото и образцы
+   скругляем здесь же, чтобы ручка осталась одна */
+.cfg__stage,
+.cfg__shot,
+.cfg__swatch {
+  border-radius: var(--radius-media);
+}
+.cfg__swatch { border-radius: var(--radius-input); }

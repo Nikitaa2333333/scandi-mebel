@@ -1,0 +1,488 @@
+/* ============================================================
+   БЛОКИ — готовые композиционные приёмы дизайн-системы.
+   Подключены глобально, поэтому классы работают на любой странице:
+   собираешь структуру сам, стили уже есть.
+
+   Что внутри (по порядку):
+     hero          — первый экран: текст + медиа, градиент вниз
+     cards         — сетка 3×N с номерами, текст читается как лид
+     halves        — контрастный сплит на две половины (одна с видео)
+     mechanisms    — две колонки на тёмной секции
+     spec          — спек-лист: номер / заголовок / текст, hairline
+     triple        — три равные колонки
+     passport      — карточки-паспорта + бенто с широкой карточкой
+     split         — текст + фото 44%, есть --reverse
+     zones/list    — простые перечисления без буллитов
+     socials       — текст слева, ссылки справа
+     path          — горизонтальный таймлайн с перетаскиванием
+     rubrics       — сетка 3×N «номер + заголовок»
+     form          — инпуты только с нижней границей
+     strip         — фото во всю ширину с фразами по краям
+     pressrows     — editorial-строки: источник / заголовок / стрелка
+     manifesto     — крупная фраза на тёмном + две колонки
+   Числа не дублировать — всё крутится токенами из global.css.
+   ============================================================ */
+
+/* ---------- Hero: текст + медиа ----------
+   align-items: end — текст сидит на нижней линии кадра (под видео).
+   Для портрета-вырезки поставить center. */
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 52%);
+  gap: clamp(20px, 3vw, 56px);
+  align-items: end;
+}
+.hero__text { padding-block: var(--section-gap-tight); }
+.hero__text .tag { margin-bottom: 18px; display: block; }
+.hero__text .lead { margin-top: var(--block-gap); }
+.hero__cta { margin-top: var(--block-gap); }
+/* Подзаголовок под именем — заголовочный уровень, не микролейбл */
+.hero__role {
+  margin-top: 16px;
+  font-size: clamp(19px, 2.2vw, 28px);
+  font-weight: 330;
+  line-height: var(--lh-head);
+  letter-spacing: -0.01em;
+}
+.hero__note {
+  margin-top: 10px;
+  color: var(--c-green);
+}
+/* Медиа крупное; градиент снизу наезжает на кадр, чтобы граница
+   со следующим блоком не была ровной линией */
+.hero__photo {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+}
+.hero__photo :is(img, video) {
+  width: 100%;
+  height: min(96svh, 900px);
+  object-fit: cover;
+  display: block;
+}
+/* Вырезанный портрет с прозрачным фоном — без кропа, прижат к низу */
+.hero__photo--cutout img {
+  object-fit: contain;
+  object-position: center bottom;
+}
+.hero__photo::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 32%;
+  background: linear-gradient(to top, var(--c-bg) 12%, transparent);
+  pointer-events: none;
+}
+@media (max-width: 860px) {
+  .hero__grid { grid-template-columns: 1fr; }
+  .hero__photo :is(img, video) { height: min(70svh, 560px); }
+}
+
+/* ---------- Карточки с номерами ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 44px) clamp(20px, 3vw, 40px);
+  margin-block: var(--block-gap);
+}
+.cards__item + .cards__item { margin-top: 0; }
+/* Текст карточки — смысловой центр секции, читается крупно, как лид */
+.cards__item p {
+  font-size: var(--fs-h3);
+  font-weight: 380;
+  line-height: 1.4;
+}
+.cards__num {
+  display: block;
+  margin-bottom: 10px;
+}
+@media (max-width: 980px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .cards { grid-template-columns: 1fr; }
+}
+
+/* ---------- Контрастный сплит на две половины ---------- */
+.halves-head {
+  /* сверху — обычный ритм секции, снизу — короткая отбивка до сплита */
+  padding-block: var(--section-gap) var(--block-gap);
+}
+.halves-head h2 { margin-top: 10px; }
+.halves-head .lead { margin-top: clamp(11px, 1.4vw, 18px); }
+.halves-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.halves-split__col {
+  padding: var(--section-gap) var(--gutter);
+  display: flex;
+  align-items: center;
+  min-height: min(72svh, 700px);
+}
+.halves-split__col--light { background: var(--c-surface); }
+/* Шалфейная половина: фоном футаж, поверх — вуаль цвета --c-green-pale,
+   видео мерцает сквозь неё, а тёмный текст остаётся контрастным */
+.halves-split__col--sage {
+  position: relative;
+  overflow: hidden;
+  background: var(--c-green-pale);
+}
+.halves-split__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.halves-split__col--sage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(170, 185, 143, 0.6); /* --c-green-pale с прозрачностью */
+}
+.halves-split__col--sage .halves-split__inner {
+  position: relative;
+  z-index: 2;
+}
+.halves-split__col--sage .tag { color: var(--c-ink); }
+.halves-split__inner {
+  max-width: 520px;
+  margin-inline: auto;
+}
+.halves-split__title {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  margin-block: 18px 22px;
+  max-width: none;
+}
+@media (max-width: 860px) {
+  .halves-split { grid-template-columns: 1fr; }
+  .halves-split__col { min-height: 0; }
+}
+
+/* ---------- Две колонки на тёмной секции ---------- */
+.mechanisms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 64px);
+  margin-top: var(--block-gap);
+}
+.mechanisms__item h3 { margin-bottom: 12px; }
+.mechanisms__rule { margin-block: var(--block-gap); }
+@media (max-width: 760px) {
+  .mechanisms { grid-template-columns: 1fr; }
+}
+
+/* ---------- Спек-лист (реф: numbers-list с hairline) ---------- */
+.spec { margin-top: var(--block-gap); }
+.spec__row {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 30%) minmax(0, 1fr);
+  gap: 16px clamp(16px, 3vw, 48px);
+  align-items: start;
+  padding-block: clamp(18px, 2.5vw, 28px);
+  border-bottom: 1px solid var(--c-line);
+}
+.spec__row:first-child { border-top: 1px solid var(--c-line); }
+.spec__sub { display: block; margin-top: var(--block-gap); margin-bottom: 8px; }
+@media (max-width: 760px) {
+  .spec__row { grid-template-columns: 48px minmax(0, 1fr); }
+  .spec__row p { grid-column: 2; }
+}
+
+/* ---------- Три равные колонки ---------- */
+.triple {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 48px);
+  margin-top: 12px;
+}
+.triple h3 { margin-bottom: 10px; }
+@media (max-width: 760px) {
+  .triple { grid-template-columns: 1fr; }
+}
+
+/* ---------- Карточки-паспорта (реф: карточка нутриента N/P/K) ---------- */
+.passport {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.5vw, 20px);
+  margin-top: var(--block-gap);
+}
+.passport__card {
+  background: var(--c-bg);
+  padding: clamp(16px, 2vw, 26px);
+  min-height: clamp(160px, 18vw, 230px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+/* На белой секции карточкам нужен серый, на серой — белый (по умолчанию) */
+.section:not(.section--surface) .passport__card { background: var(--c-surface); }
+.passport__card h3 { max-width: 14ch; }
+.passport__body { margin-top: clamp(28px, 4vw, 56px); }
+.passport__desc {
+  margin-top: 10px;
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  max-width: 30ch;
+}
+@media (max-width: 900px) {
+  .passport { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Бенто: три обычные плашки в ряд + четвёртая широкая с медиа */
+.passport--bento { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.passport__card--feature {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  padding: 0;
+  min-height: clamp(260px, 30vw, 400px);
+}
+/* специфичность выше правила .section:not(...) .passport__card */
+.section .passport__card--feature { background: var(--c-green-pale); }
+.passport__feature-text {
+  padding: clamp(16px, 2vw, 26px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.passport__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 900px) {
+  .passport--bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .passport__card--feature { grid-template-columns: 1fr; min-height: 0; }
+  .passport__video { aspect-ratio: 16 / 10; height: auto; }
+}
+
+/* Замыкающий блок под сеткой карточек */
+.quit {
+  margin-top: var(--block-gap);
+  max-width: var(--measure-lead);
+}
+.quit h3 { margin-bottom: 10px; }
+
+/* ---------- Сплит текст + фото ---------- */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 44%);
+  gap: clamp(24px, 4vw, 72px);
+  align-items: center;
+}
+.split--reverse { grid-template-columns: minmax(0, 44%) minmax(0, 1fr); }
+.split h2 { margin-bottom: var(--block-gap); }
+.split__photo { margin: 0; }
+.split__photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 20%;
+}
+@media (max-width: 860px) {
+  .split, .split--reverse { grid-template-columns: 1fr; }
+  .split--reverse .split__photo { order: 2; }
+}
+
+/* ---------- Простые перечисления ---------- */
+.zones, .list-plain { margin-top: var(--block-gap); }
+.zones li, .list-plain li { padding-block: 12px; }
+
+/* ---------- Текст слева, ссылки справа ---------- */
+.socials {
+  margin-top: var(--block-gap);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 48px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.socials p { max-width: var(--measure-lead); }
+.socials__links { display: flex; gap: 28px; color: var(--c-green); }
+
+/* ---------- Горизонтальный таймлайн ----------
+   Лента листается вбок и «уходит» за линейный градиент у правого края.
+   Перетаскивание мышью — скрипт в Layout.astro. */
+.path { margin-top: var(--block-gap); }
+.path__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+.path__scroller { position: relative; }
+.path__scroller::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: clamp(70px, 12vw, 180px);
+  background: linear-gradient(to left, var(--c-bg) 10%, transparent);
+  pointer-events: none;
+}
+.path__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(210px, 24vw, 290px);
+  overflow-x: auto;
+  cursor: grab;
+  scrollbar-width: none;
+}
+.path__track::-webkit-scrollbar { display: none; }
+.path__track.is-drag { cursor: grabbing; user-select: none; }
+/* ось таймлайна — непрерывная структурная линия сверху */
+.path__item {
+  border-top: 1px solid var(--c-line);
+  padding: 16px clamp(24px, 3vw, 48px) 6px 0;
+}
+.path__track .path__item + .path__item { margin-top: 0; }
+/* запас справа, чтобы последний этап не жил под градиентом */
+.path__item:last-child { padding-right: clamp(70px, 12vw, 180px); }
+.path__year {
+  display: block;
+  font-size: clamp(26px, 2.6vw, 34px);
+  font-weight: 330;
+  line-height: 1.1;
+  color: var(--c-green);
+  margin-bottom: 10px;
+}
+.path__text { font-size: var(--fs-small); }
+
+/* ---------- Сетка «номер + заголовок» ---------- */
+.rubrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 32px);
+  margin-block: var(--block-gap);
+}
+.rubrics li + li { margin-top: 0; }
+.rubrics .tag { display: block; margin-bottom: 8px; }
+@media (max-width: 760px) {
+  .rubrics { grid-template-columns: 1fr; }
+}
+
+/* ---------- Форма (реф: инпуты только с нижней границей) ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.form label { display: block; }
+.form .tag { display: block; margin-bottom: 6px; }
+.form input[type='text'],
+.form input[type='tel'],
+.form input[type='email'] {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--c-line);
+  background: transparent;
+  padding: 6px 2px 10px;
+  font-size: var(--fs-body);
+  color: var(--c-ink);
+}
+.form input:focus {
+  outline: none;
+  border-bottom-color: var(--c-green);
+}
+.form__check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.form__check input {
+  margin-top: 4px;
+  accent-color: var(--c-green-deep);
+}
+.form .btn { align-self: flex-start; }
+
+/* Форма на тёмной секции */
+.theme-dark .form input[type='text'],
+.theme-dark .form input[type='tel'],
+.theme-dark .form input[type='email'] {
+  color: var(--c-white);
+  border-bottom-color: rgba(255, 255, 255, 0.35);
+}
+.theme-dark .form input:focus { border-bottom-color: var(--c-green-pale); }
+.theme-dark .form__check input { accent-color: var(--c-green-pale); }
+.theme-dark .link-arrow { color: var(--c-green-pale); }
+
+/* ---------- Фото-пауза: во всю ширину, кадр целиком, без кропа ---------- */
+.strip {
+  position: relative;
+  margin: 0;
+  width: 100%;
+}
+.strip img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* Крупные фразы по краям на линейном градиенте снизу */
+.strip__cap {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: clamp(24px, 6vw, 120px);
+  padding: 160px var(--gutter) 28px;
+  color: var(--c-white);
+  font-size: clamp(18px, 1.9vw, 25px);
+  font-weight: 380;
+  line-height: 1.35;
+  background: linear-gradient(to top, rgba(17, 19, 17, 0.72), rgba(17, 19, 17, 0.25) 55%, transparent);
+}
+.strip__cap span { max-width: 30ch; }
+@media (max-width: 700px) {
+  .strip__cap { flex-direction: column; align-items: flex-start; gap: 14px; padding-top: 60px; }
+}
+
+/* ---------- Editorial-строки ---------- */
+.pressrows { margin-top: var(--block-gap); }
+.pressrows__row {
+  display: grid;
+  grid-template-columns: clamp(90px, 12vw, 160px) minmax(0, 1fr) auto;
+  gap: 12px clamp(16px, 3vw, 40px);
+  align-items: baseline;
+  padding-block: clamp(14px, 2vw, 20px);
+  border-bottom: 1px solid var(--c-line);
+}
+.pressrows__row:first-child { border-top: 1px solid var(--c-line); }
+.pressrows__row h3 {
+  transition: transform 0.3s var(--ease-out);
+  max-width: none;
+}
+.pressrows__row:hover h3 { transform: translateX(10px); }
+.pressrows__arrow { color: var(--c-green); }
+@media (max-width: 700px) {
+  .pressrows__row { grid-template-columns: minmax(0, 1fr) auto; }
+  .pressrows__row .tag { grid-column: 1 / -1; }
+}
+
+/* ---------- Манифест на тёмном ---------- */
+.manifesto {
+  font-size: clamp(36px, 5.5vw, 84px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  max-width: 18ch;
+  margin-block: 18px var(--block-gap);
+}
+.manifesto__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 56px);
+  margin-bottom: var(--block-gap);
+}
+@media (max-width: 760px) {
+  .manifesto__cols { grid-template-columns: 1fr; }
+}

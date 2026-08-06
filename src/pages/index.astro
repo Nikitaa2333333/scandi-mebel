@@ -1,0 +1,481 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Catalog from '../components/Catalog.astro';
+import Configurator from '../components/Configurator.astro';
+import { asset } from '../lib/asset';
+
+// Сценарии, с которыми приходят — из повторяющихся запросов в канале заказчика
+const scenarios = [
+  { n: '01', text: 'Нашли стул в пинтересте и хотят такой же, но под свой размер стола.' },
+  { n: '02', text: 'Купили стол, а стулья к нему не подбираются ни по цвету, ни по высоте.' },
+  { n: '03', text: 'Нужен комплект в одном тоне: стол и шесть стульев без разнобоя.' },
+  { n: '04', text: 'Готовые стулья не подходят по ткани — нужна своя обивка под интерьер.' },
+  { n: '05', text: 'Комната нестандартная: стол нужен уже, длиннее или овальный.' },
+  { n: '06', text: 'Хотят массив, а не шпон на ЛДСП, и чтобы прослужило годы.' },
+];
+
+// Шаги — наши четыре
+const steps = [
+  { n: '01', title: 'Выбираете модель', text: 'Из каталога или по вашему референсу — присылайте фото, повторим форму.' },
+  { n: '02', title: 'Ткань и цвет', text: 'Подбираем обивку по образцам и красим каркас в нужный тон.' },
+  { n: '03', title: 'Размеры', text: 'Считаем стол под вашу комнату и число гостей: круглый, овальный, прямой.' },
+  { n: '04', title: 'Изготавливаем', text: 'Собираем и обиваем вручную в своей мастерской, бережно доставляем.' },
+];
+
+// Что входит в работу — бенто-карточки
+const includes = [
+  { n: '01', title: 'Массив дерева', text: 'Каркас из массива, а не шпон на плите. Держит вес и переживает переезды.' },
+  { n: '02', title: 'Ткань по образцам', text: 'Букле, рогожка, велюр, шенилл — привозим образцы и смотрим при вашем свете.' },
+  { n: '03', title: 'Тон каркаса', text: 'Красим в любой оттенок: от светлого дуба до тёмного ореха и графита.' },
+];
+---
+
+<Layout
+  title="Scandi Мебель — стулья и столы из массива на заказ"
+  description="Скандинавская мебель на заказ: стулья и столы из массива. Ткань, цвет каркаса и размеры подбираем под ваш интерьер. Индивидуальный дизайн, собственное производство."
+>
+  <Header />
+
+  <main>
+    <!-- 1. Hero — видео во весь экран, текст поверх снизу -->
+    <section class="herofull">
+      <video
+        class="herofull__video"
+        src={asset('video/hero-assembly.mp4')}
+        poster={asset('photos/hero-assembly.jpg')}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-hidden="true"></video>
+      <div class="herofull__scrim"></div>
+      <div class="container herofull__inner">
+        <div class="herofull__text">
+          <p class="tag reveal">Scandi Мебель · мебель на заказ</p>
+          <h1 class="display" data-split>Потрясающие стулья</h1>
+        </div>
+        <div class="herofull__side">
+          <p class="lead reveal" style="--reveal-delay:.18s">
+            Скандинавский дизайн под ваш интерьер. Стулья и столы из массива:
+            ткань, цвет каркаса и размеры подбираем под вас.
+          </p>
+          <div class="hero__cta reveal" style="--reveal-delay:.24s">
+            <a href="#form" class="btn">Оставить заявку</a>
+            <p class="small hero__note">Посчитаем стоимость под ваши размеры</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Витрина — главный блок: плотный каталог крупных кадров -->
+    <Catalog />
+
+    <!-- 3. Конфигуратор цвета обивки -->
+    <Configurator />
+
+    <!-- 4. Текстиль — витрина образцов -->
+    <section class="section fabrics" id="fabrics">
+      <div class="container">
+        <p class="tag">Текстиль</p>
+        <h2 data-split>Огромный выбор ткани</h2>
+        <p class="lead">
+          Десятки фактур и цветов: букле, рогожка, велюр, шенилл, экокожа.
+          Вы выбираете вариант под свой интерьер — мы обшиваем мебель именно
+          им, индивидуально под вас.
+        </p>
+      </div>
+      <div class="container fabrics__media">
+        <img
+          src={asset('photos/fabrics.jpg')}
+          alt="Образцы обивочных тканей: букле, рогожка, велюр, экокожа — десятки цветов"
+          loading="lazy"
+          decoding="async"
+          width="1536"
+          height="1024"
+        />
+      </div>
+      <div class="container">
+        <ul class="list-plain">
+          <li><h3>Привозим образцы на выбор</h3></li>
+          <li><h3>Смотрите ткань при своём свете</h3></li>
+          <li><h3>Каркас красим в тон под неё</h3></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. С чем приходят -->
+    <section class="section" id="work">
+      <div class="container">
+        <p class="tag reveal">С чем приходят</p>
+        <h2 data-split>Когда готовое не подходит</h2>
+        <p class="lead reveal">
+          Шесть ситуаций, с которыми к нам пишут чаще всего. Если узнали свою —
+          <mark>решаем именно её</mark>.
+        </p>
+        <ul class="cards reveal-group">
+          {scenarios.map((s) => (
+            <li class="cards__item">
+              <span class="tag cards__num">{s.n}</span>
+              <p>{s.text}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. Форма и функция — контрастный сплит -->
+    <section>
+      <div class="container halves-head">
+        <p class="tag reveal">Как мы это делаем</p>
+        <h2 data-split>Форма и материал</h2>
+        <p class="lead reveal">
+          Две вещи, на которых держится стул: точная геометрия и честный массив.
+        </p>
+      </div>
+      <div class="halves-split">
+        <div class="halves-split__col halves-split__col--light">
+          <div class="halves-split__inner">
+            <p class="tag reveal">01</p>
+            <h3 class="halves-split__title" data-split>Геометрия</h3>
+            <p class="reveal">
+              Высота сиденья, наклон спинки и вылет ножек считаются под стол, за
+              которым будете сидеть. Стул должен заходить под столешницу и не
+              упираться подлокотником в царгу — это решается до раскроя, а не после.
+            </p>
+          </div>
+        </div>
+        <div class="halves-split__col halves-split__col--sage">
+          <video
+            class="halves-split__video"
+            src={asset('video/workshop-scandi.mp4')}
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-hidden="true"></video>
+          <div class="halves-split__inner">
+            <p class="tag reveal">02</p>
+            <h3 class="halves-split__title" data-split>Массив</h3>
+            <p class="reveal">
+              Каркас из массива, а не шпон на плите. Такой стул можно перетянуть
+              через несколько лет и перекрасить в другой тон — конструкция это
+              переживёт, потому что держится на шипах, а не на конфирматах.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Принципы — тёмная секция -->
+    <section class="section theme-dark">
+      <div class="container">
+        <p class="tag reveal">Принципы</p>
+        <div class="mechanisms reveal-group">
+          <div class="mechanisms__item">
+            <h3>Спокойный тон</h3>
+            <p>
+              Скандинавская мебель не спорит с комнатой. Мы держим приглушённую
+              палитру дерева и ткани, чтобы стул работал фоном для стола и людей
+              за ним, а не перетягивал внимание.
+            </p>
+          </div>
+          <div class="mechanisms__item">
+            <h3>Ничего лишнего</h3>
+            <p>
+              Ни резьбы, ни каретной стяжки, ни золочёных ножек. Форма читается
+              с одного взгляда, и именно поэтому такой стул не устаревает через
+              два сезона вместе с модой.
+            </p>
+          </div>
+        </div>
+        <hr class="rule mechanisms__rule" />
+        <p class="lead reveal">
+          Мы делаем мебель под заказ — значит, вы не подстраиваете комнату под
+          готовый размер, а получаете тот, который нужен.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. Как строится работа -->
+    <section class="section" id="steps">
+      <div class="container">
+        <p class="tag reveal">Порядок работы</p>
+        <h2 data-split>Как заказать</h2>
+        <div class="spec reveal-group">
+          {steps.map((s) => (
+            <div class="spec__row">
+              <span class="tag">{s.n}</span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Фото-пауза -->
+    <figure class="strip">
+      <img
+        src={asset('photos/leon-5.jpg')}
+        alt="Овальный стол из ореха со стульями в светлой столовой"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption class="strip__cap">
+        <span>Стол под комнату, а не комната под стол.</span>
+        <span>Круглый, овальный или прямой — по вашим габаритам.</span>
+      </figcaption>
+    </figure>
+
+    <!-- 9. Своё производство — лицо мастерской -->
+    <section class="section" id="production">
+      <div class="container split">
+        <div>
+          <p class="tag reveal">Своё производство</p>
+          <h2 data-split>Мастерская, а не фабрика</h2>
+          <p class="reveal">
+            Мы не перепродаём чужие заготовки и не собираем мебель на конвейере.
+            Всё делается в своём цехе: раскрой, сборка на шипах, покраска
+            и обивка вручную.
+          </p>
+          <p class="reveal">
+            Поэтому и получается делать не только каталожные модели, но и свой
+            стиль — под квартиру, ресторан, кафе или офис. Приходите с идеей
+            или референсом, а не с артикулом из чужого прайса.
+          </p>
+          <ul class="list-plain reveal-group">
+            <li><h3>Для дома и квартиры</h3></li>
+            <li><h3>Для ресторана и кафе</h3></li>
+            <li><h3>Для офиса и переговорной</h3></li>
+          </ul>
+        </div>
+        <figure class="split__photo reveal">
+          <img
+            src={asset('photos/founder.jpg')}
+            alt="Основатель мастерской в цехе"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 10. Что входит — бенто -->
+    <section class="section section--surface">
+      <div class="container">
+        <p class="tag reveal">Как делаем</p>
+        <h2 data-split>Что входит в работу</h2>
+        <div class="passport passport--bento reveal-group">
+          {includes.map((c) => (
+            <div class="passport__card">
+              <span class="tag">{c.n}</span>
+              <div class="passport__body">
+                <h3>{c.title}</h3>
+                <p class="passport__desc">{c.text}</p>
+              </div>
+            </div>
+          ))}
+          <div class="passport__card passport__card--feature">
+            <div class="passport__feature-text">
+              <span class="tag">04</span>
+              <div class="passport__body">
+                <h3>Своя мастерская</h3>
+                <p class="passport__desc">
+                  Каждый стул собираем и обиваем сами — без посредников и
+                  переклеивания чужих заготовок.
+                </p>
+              </div>
+            </div>
+            <video
+              class="passport__video"
+              src={asset('video/chair-laguna.mp4')}
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-hidden="true"></video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Модели -->
+    <section class="section" id="models">
+      <div class="container">
+        <p class="tag reveal">Не нашли своё?</p>
+        <h2 data-split>Сделаем по вашему референсу</h2>
+        <p class="lead reveal">
+          Пришлите фото понравившейся модели — повторим форму, подберём ткань
+          и посчитаем стоимость под ваши размеры.
+        </p>
+        <div class="hero__cta reveal">
+          <a href="#form" class="btn">Обсудить заказ</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. Свой размер — сплит с фото -->
+    <section class="section section--surface">
+      <div class="container split">
+        <div>
+          <p class="tag reveal">Под ваш интерьер</p>
+          <h2 data-split>Свой размер и своя ткань</h2>
+          <p class="reveal">
+            Присылайте фото комнаты и референс — подскажем, какая модель сядет в
+            вашу столовую, и посчитаем стол под число гостей.
+          </p>
+          <ul class="list-plain reveal-group">
+            <li><h3>Ткань обивки по образцам</h3></li>
+            <li><h3>Цвет каркаса в любой тон</h3></li>
+            <li><h3>Размер и форма стола</h3></li>
+            <li><h3>Мягкая или деревянная сидушка</h3></li>
+          </ul>
+        </div>
+        <figure class="split__photo reveal">
+          <img
+            src={asset('photos/mazerati-3.jpg')}
+            alt="Стол Луч с лучевым шпоном и стулья Мазерати"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 12. Манифест -->
+    <section class="section theme-dark">
+      <div class="container">
+        <p class="tag reveal">О нас</p>
+        <p class="manifesto reveal">
+          Мебель на заказ начинается не с каталога, а <mark>с вашей комнаты</mark>
+        </p>
+        <div class="manifesto__cols reveal-group">
+          <p>
+            Мы не продаём готовые партии со склада. Каждый заказ считается заново:
+            под размер комнаты, высоту стола, свет из окна и ткань, которая вам
+            нравится на ощупь.
+          </p>
+          <p>
+            Поэтому в каталоге нет цен — стул на четыре ножки и гарнитур на
+            двенадцать персон стоят по-разному. Напишите, что нужно, и мы
+            посчитаем именно ваш вариант.
+          </p>
+        </div>
+        <a class="link-arrow reveal" href="#form">Обсудить заказ →</a>
+      </div>
+    </section>
+
+    <!-- 13. Заявка -->
+    <section class="section theme-dark" id="form">
+      <div class="container split">
+        <div>
+          <p class="tag reveal">Заявка</p>
+          <h2 data-split>Обратная связь</h2>
+          <p class="reveal">
+            Оставьте контакты — вернёмся с ответом, подскажем по моделям и тканям
+            и посчитаем стоимость под ваши размеры.
+          </p>
+        </div>
+        <form class="form reveal" action={asset('thanks')} method="get">
+          <label>
+            <span class="tag">Имя</span>
+            <input type="text" name="name" required autocomplete="name" />
+          </label>
+          <label>
+            <span class="tag">Телефон</span>
+            <input type="tel" name="phone" required autocomplete="tel" />
+          </label>
+          <label>
+            <span class="tag">Что нужно</span>
+            <input type="text" name="task" autocomplete="off" />
+          </label>
+          <label class="form__check">
+            <input type="checkbox" required />
+            <span class="small">Согласен(на) на обработку персональных данных</span>
+          </label>
+          <button class="btn" type="submit">Отправить</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Видео в бенто-карточке: ролик вертикальный (464×848), а колонка широкая.
+     Без потолка пропорций он растягивался на полтора экрана в высоту. */
+  .passport__video {
+    aspect-ratio: 16 / 11;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* --- Ткани: кадр во всю ширину контента. Образцы мелкие, в узкой
+     колонке фактуру не разглядеть — а именно она здесь и продаёт --- */
+  .fabrics__media {
+    margin-block: var(--block-gap);
+  }
+  .fabrics__media img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* --- Hero: видео во весь экран, текст поверх снизу --- */
+  .herofull {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    /* видео вылезает под липкую шапку — она без фона, так и задумано */
+    margin-top: calc(-1 * var(--header-h, 64px));
+    padding-top: var(--header-h, 64px);
+  }
+  .herofull__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Скрим — функциональный: ролик снят на светлом бежевом фоне,
+     без подложки тёмный текст на нём не читается */
+  .herofull__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(255 255 255 / 0.97) 0%,
+      rgba(255 255 255 / 0.9) 16%,
+      rgba(255 255 255 / 0.62) 34%,
+      rgba(255 255 255 / 0.3) 52%,
+      rgba(255 255 255 / 0.08) 72%,
+      transparent 88%
+    );
+  }
+  .herofull__inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--block-gap);
+    padding-bottom: var(--section-gap-tight);
+  }
+  .herofull__text .display { max-width: var(--measure-head-lg); }
+  .herofull__side { max-width: var(--measure-lead); }
+  @media (min-width: 1000px) {
+    .herofull__inner {
+      grid-template-columns: 1fr minmax(0, 420px);
+      align-items: end;
+      gap: clamp(24px, 4vw, 64px);
+    }
+  }
+</style>

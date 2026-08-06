@@ -1,0 +1,53 @@
+---
+// Липкая шапка без фона — секции проезжают под ней.
+const nav = [
+  { href: '#configurator', label: 'Конфигуратор' },
+  { href: '#models', label: 'Модели' },
+  { href: '#steps', label: 'Как заказать' },
+  { href: '#production', label: 'Производство' },
+];
+---
+
+<header class="header">
+  <div class="container header__row">
+    <a href={import.meta.env.BASE_URL} class="header__logo">Scandi Мебель</a>
+    <nav class="header__nav">
+      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+    <a href="#form" class="header__cta">Оставить заявку</a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 16px;
+  }
+  .header__logo {
+    font-weight: 500;
+    font-size: var(--fs-body);
+    white-space: nowrap;
+  }
+  .header__nav {
+    display: flex;
+    gap: clamp(16px, 2.5vw, 36px);
+    font-size: var(--fs-small);
+  }
+  .header__cta {
+    font-size: var(--fs-small);
+    color: var(--c-green);
+    font-weight: 450;
+    white-space: nowrap;
+  }
+  @media (max-width: 760px) {
+    .header__nav { display: none; }
+  }
+</style>

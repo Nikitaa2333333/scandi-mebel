@@ -1,0 +1,227 @@
+---
+// Конфигуратор цвета обивки: все 6 кадров лежат в DOM,
+// клик по образцу только переключает их кроссфейдом — никаких
+// дозагрузок и мерцания белым.
+import { asset } from '../lib/asset';
+
+// hex снят по ткани на самих фото — образец и кадр совпадают один в один
+const colors = [
+  { id: 'cream',   file: 'chairs/chair_1_cream.png',   name: 'Кремовый',   desc: 'тёплый кремово-бежевый',   hex: '#c9b8a2' },
+  { id: 'gray',    file: 'chairs/chair_2_gray.png',    name: 'Серый',      desc: 'тёплый серый, грейдж',     hex: '#8e877c' },
+  { id: 'green',   file: 'chairs/chair_3_green.png',   name: 'Зелёный',    desc: 'тёмный хвойно-оливковый',  hex: '#3b4135' },
+  { id: 'orange',  file: 'chairs/chair_4_orange.png',  name: 'Терракота',  desc: 'ржаво-кирпичный',          hex: '#b53e14' },
+  { id: 'teal',    file: 'chairs/chair_5_teal.png',    name: 'Шалфейный',  desc: 'приглушённый серо-зелёный', hex: '#6b7e77' },
+  { id: 'mustard', file: 'chairs/chair_6_mustard.png', name: 'Горчичный',  desc: 'горчично-охристый',        hex: '#cd8927' },
+];
+
+const first = colors[0];
+---
+
+<section class="section section--surface" id="configurator">
+  <div class="container">
+    <p class="tag">Конфигуратор</p>
+    <h2 data-split>Цвет обивки подбираем под ваш интерьер</h2>
+    <p class="lead">
+      Стул «Скандия» собирается по одному чертежу, но живёт в шести характерах.
+      Выберите оттенок ткани и посмотрите, как меняется стул целиком.
+    </p>
+
+    <div class="cfg">
+      <figure class="cfg__media reveal" aria-live="polite">
+        {colors.map((c, i) => (
+          <img
+            class:list={['cfg__shot', { 'is-active': i === 0 }]}
+            data-shot={c.id}
+            src={asset(c.file)}
+            alt={`Стул на каркасе из ореха, обивка — ${c.name}`}
+            width="500"
+            height="499"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            aria-hidden={i === 0 ? 'false' : 'true'}
+          />
+        ))}
+      </figure>
+
+      <div class="cfg__panel">
+        <p class="tag">Цвет обивки</p>
+
+        <ul class="cfg__swatches reveal-group">
+          {colors.map((c, i) => (
+            <li>
+              <button
+                type="button"
+                class="cfg__swatch"
+                data-color={c.id}
+                data-name={c.name}
+                data-desc={c.desc}
+                style={`background: ${c.hex};`}
+                aria-pressed={i === 0 ? 'true' : 'false'}
+                aria-label={`${c.name} — ${c.desc}`}
+              ></button>
+            </li>
+          ))}
+        </ul>
+
+        <p class="cfg__name">{first.name}</p>
+        <p class="cfg__desc">{first.desc}</p>
+
+        <p class="cfg__note">
+          Каркас у всех шести — массив ореха, масло без плёнки. Ткань и цвет
+          подбираем под клиента: шесть оттенков держим на складе, остальное
+          шьём по вашему образцу.
+        </p>
+
+        <a class="btn" href="#contact">Заказать выкраски ткани</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Фон студии с самих фото: держит кадр до загрузки и закрывает
+     стык, пока картинка не отрисовалась */
+  .cfg {
+    --cfg-studio: #ddd3c8;
+    --cfg-fade: 0.4s;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 34%);
+    gap: clamp(24px, 4vw, 72px);
+    align-items: center;
+    margin-top: var(--block-gap);
+  }
+
+  .cfg__media {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--cfg-studio);
+  }
+  /* Все кадры лежат стопкой: переключается только opacity.
+     visibility снимает скрытый кадр с указателя и из ассистивных технологий */
+  .cfg__shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--cfg-fade) var(--ease-out),
+      visibility 0s linear var(--cfg-fade);
+  }
+  .cfg__shot.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--cfg-fade) var(--ease-out),
+      visibility 0s;
+  }
+
+  .cfg__panel .tag {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  /* Потолок ширины у самой сетки образцов: без него на широком экране
+     квадраты раздуваются вслед за колонкой */
+  .cfg__swatches {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 300px;
+  }
+  .cfg__swatches li + li { margin-top: 0; }
+
+  .cfg__swatch {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    transition:
+      opacity var(--t-hover),
+      box-shadow var(--t-hover);
+  }
+  .cfg__swatch:hover { opacity: 0.7; }
+  /* Выбранный образец: светлый кант внутрь + тонкая рамка наружу —
+     состояние читается и на тёмных, и на светлых тканях */
+  .cfg__swatch[aria-pressed='true'] {
+    box-shadow:
+      inset 0 0 0 3px var(--c-surface),
+      0 0 0 1px var(--c-ink);
+  }
+  .cfg__swatch:focus-visible {
+    outline: 2px solid var(--c-ink);
+    outline-offset: 4px;
+  }
+
+  .cfg__name {
+    margin-top: clamp(16px, 2vw, 26px);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-head);
+    max-width: var(--measure-head);
+  }
+  .cfg__desc {
+    margin-top: 6px;
+    color: var(--c-green);
+  }
+  .cfg__note {
+    margin-top: var(--block-gap);
+    font-size: var(--fs-small);
+  }
+  .cfg__panel .btn { margin-top: var(--block-gap); }
+
+  /* ≤860px: фото сверху, образцы под ним — порядок в разметке уже такой */
+  @media (max-width: 860px) {
+    .cfg { grid-template-columns: 1fr; }
+    .cfg__swatches {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      max-width: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cfg__shot,
+    .cfg__shot.is-active,
+    .cfg__swatch {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('#configurator');
+
+  if (root) {
+    const shots = Array.from(root.querySelectorAll<HTMLImageElement>('.cfg__shot'));
+    const swatches = Array.from(root.querySelectorAll<HTMLButtonElement>('.cfg__swatch'));
+    const nameEl = root.querySelector<HTMLElement>('.cfg__name');
+    const descEl = root.querySelector<HTMLElement>('.cfg__desc');
+
+    const select = (id: string) => {
+      for (const shot of shots) {
+        const on = shot.dataset.shot === id;
+        shot.classList.toggle('is-active', on);
+        // скрытые кадры убираем из озвучки, иначе live-регион читает все шесть
+        shot.setAttribute('aria-hidden', on ? 'false' : 'true');
+      }
+      for (const btn of swatches) {
+        const on = btn.dataset.color === id;
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) {
+          if (nameEl) nameEl.textContent = btn.dataset.name ?? '';
+          if (descEl) descEl.textContent = btn.dataset.desc ?? '';
+        }
+      }
+    };
+
+    for (const btn of swatches) {
+      btn.addEventListener('click', () => select(btn.dataset.color ?? ''));
+    }
+  }
+</script>

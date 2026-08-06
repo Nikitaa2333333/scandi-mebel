@@ -1,0 +1,237 @@
+{
+  "brand": {
+    "name": "Scandi Мебель",
+    "tagline": "Столы и стулья из массива на заказ",
+    "pitch": "Скандинавские столы и стулья. Ткань, цвет каркаса и размеры подбираем под ваш интерьер.",
+    "source": "Telegram-канал «Scandi Mebel», экспорт ChatExport_2026-07-26",
+    "contacts": {
+      "telegram": null,
+      "phone": null,
+      "note": "Реальные контакты заказчик ещё не давал — поля намеренно пустые"
+    }
+  },
+
+  "options": {
+    "note": "То, что реально меняется под клиента — повторяется почти в каждой подписи канала",
+    "items": [
+      "Ткань обивки — на выбор по образцам",
+      "Цвет каркаса — красим в любой тон",
+      "Размеры столов — под комнату и число гостей",
+      "Форма стола — круглый, овальный, прямоугольный",
+      "Сидушка — мягкая или деревянная (модель «Леон»)"
+    ]
+  },
+
+  "videos": [
+    {
+      "id": "hero-assembly",
+      "file": "media/video/hero-assembly.mp4",
+      "poster": "media/poster/hero-assembly.jpg",
+      "title": "Сборка стула в воздухе",
+      "duration": 10,
+      "size": "1280x720",
+      "origin": "сгенерированный ролик (не съёмка производства)",
+      "content": "Стул разлетается на детали и собирается обратно на тёплом бежевом фоне. В начале — детали, в конце — собранный стул.",
+      "use": "Главный экран. Идеален под скролл-скраб: листаешь вниз — стул собирается.",
+      "warning": "В оригинале в правом нижнем углу водяной знак ✦ — в scrub-версии обрезан."
+    },
+    {
+      "id": "hero-assembly-scrub",
+      "file": "media/video/hero-assembly-scrub.mp4",
+      "poster": "media/poster/hero-assembly.jpg",
+      "title": "Сборка стула — версия под скролл-скраб",
+      "duration": 10,
+      "size": "1104x720",
+      "origin": "перекодировано из hero-assembly ffmpeg-ом",
+      "content": "То же, но каждый кадр ключевой (-g 1) и обрезан водяной знак.",
+      "use": "Брать ЭТОТ файл, если видео перематывается скроллом (currentTime по прогрессу). Обычный mp4 с редкими ключевыми кадрами при перемотке дёргается."
+    },
+    {
+      "id": "workshop-scandi",
+      "file": "media/video/workshop-scandi.mp4",
+      "poster": "media/poster/workshop-scandi.jpg",
+      "title": "Стул Сканди — вертикальное видео",
+      "duration": 13.4,
+      "size": "464x824",
+      "origin": "снято заказчиком",
+      "content": "Стул Сканди, вертикальный формат.",
+      "use": "Блок про производство или вертикальная вставка. Подпись в канале: «Для анимации если надо стул сканди тот»."
+    },
+    {
+      "id": "chair-living-room",
+      "file": "media/video/chair-living-room.mp4",
+      "poster": "media/poster/chair-living-room.jpg",
+      "title": "Синее кресло в светлой гостиной",
+      "duration": 10,
+      "size": "1280x720",
+      "origin": "сгенерированный ролик (не съёмка производства)",
+      "content": "Медленный проезд вокруг синего кресла в интерьере: шторы, диван, журнальный стол.",
+      "use": "Атмосферный фон — второй кандидат на главный экран или вставка между блоками. Не привязан к конкретной модели каталога."
+    },
+    {
+      "id": "chair-laguna",
+      "file": "media/video/chair-laguna.mp4",
+      "poster": "media/poster/chair-laguna.jpg",
+      "title": "Стул Лагуна",
+      "duration": 10.8,
+      "size": "464x848",
+      "origin": "снято заказчиком",
+      "content": "Стул Лагуна в плёнке, голубая обивка.",
+      "use": "Единственный материал по Лагуне — фото этой модели нет."
+    }
+  ],
+
+  "models": [
+    {
+      "slug": "scandi",
+      "name": "Сканди",
+      "fullName": "Стулья и столы Сканди",
+      "sourceCaption": "Стулья сканди и столы сканди. Можно выбрать ткань и цвет каркаса а так же и размеры столов",
+      "description": "Классика скандинавской столовой: круглый стол и стулья с гнутой спинкой.",
+      "options": ["ткань", "цвет каркаса", "размеры стола"],
+      "photos": [
+        { "file": "media/photo/scandi-1.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/scandi-2.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/scandi-3.jpg", "kind": "showcase", "size": "1002x1280" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "shik",
+      "name": "Шик",
+      "fullName": "Стулья Шик со столом Сканди",
+      "sourceCaption": "Стулья шик со столом сканди. Так же можно сделать с мягкой обивкой и в любой цвет",
+      "description": "Гнутая спинка и тёплый орех. Делаем с мягкой обивкой и красим в любой цвет.",
+      "options": ["мягкая обивка", "любой цвет"],
+      "photos": [
+        { "file": "media/photo/shik-1.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/shik-2.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/shik-3.jpg", "kind": "showcase", "size": "960x1280" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "leon",
+      "name": "Леон",
+      "fullName": "Стул Леон",
+      "sourceCaption": "Стул Леон так же в любой цвет можно покрасить и выбрать ткани а так же сделать с деревянной сидушкой",
+      "description": "Кресло с круглой спинкой-обручем. Красим в любой цвет, ткань на выбор, есть вариант с деревянной сидушкой.",
+      "options": ["любой цвет", "ткань на выбор", "деревянная сидушка"],
+      "photos": [
+        { "file": "media/photo/leon-1.jpg", "kind": "showcase", "size": "1075x1280" },
+        { "file": "media/photo/leon-2.jpg", "kind": "workshop", "size": "960x1280", "note": "цех, каркас в плёнке, зелёная обивка" },
+        { "file": "media/photo/leon-3.jpg", "kind": "workshop", "size": "960x1280", "note": "цех, вид спереди" },
+        { "file": "media/photo/leon-4.jpg", "kind": "workshop", "size": "960x1280", "note": "цех, зелёная обивка" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "laguna",
+      "name": "Лагуна",
+      "fullName": "Стул Лагуна",
+      "sourceCaption": "Стул лагуна в любой цвет а так же и ткань в любой",
+      "description": "Любой цвет каркаса и любая ткань обивки.",
+      "options": ["любой цвет", "любая ткань"],
+      "photos": [],
+      "video": "chair-laguna",
+      "note": "Фотографий нет — только видео. Если в макете нужна карточка с картинкой, брать постер media/poster/chair-laguna.jpg (он мелкий, 464x848)."
+    },
+    {
+      "slug": "mazerati",
+      "name": "Мазерати",
+      "fullName": "Стулья Мазерати и стол Луч",
+      "sourceCaption": "Стулья Мазерати и стол Луч",
+      "description": "Столешница с лучевым шпоном и мягкие стулья с открытой спинкой.",
+      "options": ["ткань", "цвет каркаса", "размер стола"],
+      "photos": [
+        { "file": "media/photo/mazerati-1.jpg", "kind": "showcase", "size": "1280x960", "note": "горизонтальный кадр" },
+        { "file": "media/photo/mazerati-2.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/mazerati-3.jpg", "kind": "showcase", "size": "1179x809", "note": "горизонтальный, стол крупно" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "hermes",
+      "name": "Хермес",
+      "fullName": "Стулья Хермес",
+      "sourceCaption": "Стулья Хермес столы столы тоже на заказ",
+      "description": "Стулья Хермес, столы к ним изготавливаем на заказ по вашим размерам.",
+      "options": ["столы на заказ", "размеры"],
+      "photos": [
+        { "file": "media/photo/hermes-1.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/hermes-2.jpg", "kind": "showcase", "size": "1014x1280" },
+        { "file": "media/photo/hermes-3.jpg", "kind": "showcase", "size": "960x1280" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "terezza",
+      "name": "Терезза",
+      "fullName": "Стулья Терезза",
+      "sourceCaption": "Стулья Терезза ткань и цвет каркаса под клиента",
+      "description": "Овальная спинка на тонком каркасе. Ткань и цвет подбираем под клиента.",
+      "options": ["ткань", "цвет каркаса"],
+      "photos": [
+        { "file": "media/photo/terezza-1.jpg", "kind": "showcase", "size": "1110x1280", "note": "снято на улице у витрины, солнечный контровой свет — выбивается из остальных кадров" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "maybah",
+      "name": "Майбах",
+      "fullName": "Стол и стулья Майбах",
+      "sourceCaption": "Стол и стулья Майбах так же цвет и ткань все под клиента и размер стола тоже",
+      "description": "Гарнитур: овальный стол и мягкие стулья. Цвет, ткань и размер стола — под клиента.",
+      "options": ["цвет", "ткань", "размер стола"],
+      "photos": [
+        { "file": "media/photo/maybah-1.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/maybah-2.jpg", "kind": "showcase", "size": "960x1280" },
+        { "file": "media/photo/maybah-3.jpg", "kind": "showcase", "size": "960x1280" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "kaspiy",
+      "name": "Каспий",
+      "fullName": "Стулья Каспий",
+      "sourceCaption": "Стулья Каспий",
+      "description": "Массив дерева, обивка на выбор.",
+      "options": ["массив", "обивка на выбор"],
+      "photos": [
+        { "file": "media/photo/kaspiy-1.jpg", "kind": "showcase", "size": "1280x1118", "note": "горизонтальный, стулья составлены штабелем" }
+      ],
+      "video": null
+    },
+    {
+      "slug": "skarlet",
+      "name": "Скарлет",
+      "fullName": "Стол и стулья Скарлет",
+      "sourceCaption": "Стол и стулья Скарлет",
+      "description": "Гарнитур для столовой: цвет и ткань согласуем под интерьер.",
+      "options": ["цвет", "ткань"],
+      "photos": [
+        { "file": "media/photo/skarlet-1.jpg", "kind": "showcase", "size": "1116x1280" },
+        { "file": "media/photo/skarlet-2.jpg", "kind": "showcase", "size": "1038x1280" },
+        { "file": "media/photo/skarlet-3.jpg", "kind": "showcase", "size": "1078x1280" }
+      ],
+      "video": null
+    }
+  ],
+
+  "unsorted": [
+    {
+      "file": "media/photo/leon-5.jpg",
+      "size": "1280x960",
+      "content": "Овальный стол из ореха с бежевыми стульями, мраморный пол",
+      "issue": "В Telegram шло в альбоме «Леона», но на вид это другая модель. Заказчик пока не подтвердил.",
+      "use": "Отличный широкий интерьерный кадр — годится как фон/обложка, но без подписи модели."
+    }
+  ],
+
+  "steps": [
+    { "n": "01", "title": "Выбираете модель", "text": "Стулья и столы из каталога — или присылаете референс из Пинтереста." },
+    { "n": "02", "title": "Ткань и цвет", "text": "Подбираем обивку и тон каркаса под ваш интерьер." },
+    { "n": "03", "title": "Размеры", "text": "Столы делаем по вашим габаритам — под комнату и число гостей." },
+    { "n": "04", "title": "Изготавливаем", "text": "Собираем в собственной мастерской и бережно доставляем." }
+  ]
+}

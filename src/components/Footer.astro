@@ -1,0 +1,48 @@
+---
+// Футер: тёмная полоса-примечание (реф: .drop-note) + служебная строка
+import { asset } from '../lib/asset';
+---
+
+<footer class="footer">
+  <div class="footer__note theme-dark">
+    <div class="container">
+      <p>
+        Мебель изготавливается под заказ: ткань, цвет каркаса и размеры
+        согласуются до начала работы. Цены зависят от модели и габаритов —
+        считаем по вашей заявке.
+      </p>
+    </div>
+  </div>
+  <div class="container footer__row">
+    <p class="small">Scandi Мебель, {new Date().getFullYear()}</p>
+    <nav class="footer__links small">
+      <!-- TODO: подставить реальные контакты — заказчик их пока не давал -->
+      <a href="#form">Оставить заявку</a>
+      <a href="#models">Модели</a>
+    </nav>
+    <a class="small footer__policy" href={asset('policy')}>Политика обработки персональных данных</a>
+  </div>
+</footer>
+
+<style>
+  .footer__note {
+    padding-block: 22px;
+  }
+  .footer__note p { max-width: none; }
+  .footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 22px;
+  }
+  .footer__links {
+    display: flex;
+    gap: 24px;
+  }
+  .footer__policy { color: var(--c-green); }
+  @media (max-width: 700px) {
+    .footer__row { flex-direction: column; align-items: flex-start; }
+  }
+</style>

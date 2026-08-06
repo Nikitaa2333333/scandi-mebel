@@ -1,0 +1,257 @@
+---
+// Каталог-витрина: главный блок сайта.
+// Плотная сетка крупных кадров с названием и описанием под каждым.
+// Карточки НЕ анимируются при появлении: двенадцать всплывающих блоков
+// бьют по глазам, а каталог должен просто стоять и читаться.
+// У кого больше одного кадра — листаются кликом по краю и свайпом.
+import { asset } from '../lib/asset';
+
+interface Item {
+  name: string;
+  desc: string;
+  photos: string[];
+  /** крупная карточка — занимает две колонки */
+  wide?: boolean;
+}
+
+// Порядок неслучайный. 12 позиций, из них 3 широкие = ровно 15 ячеек
+// на трёх колонках: пять полных рядов без единой дыры.
+// Меняешь состав — пересчитай: (позиции + широкие) должно делиться на 3.
+const items: Item[] = [
+  {
+    name: 'Сканди',
+    desc: 'Стулья и столы. Ткань, цвет каркаса и размеры стола — на выбор.',
+    photos: ['photos/scandi-1.jpg', 'photos/scandi-2.jpg', 'photos/scandi-3.jpg'],
+  },
+  {
+    name: 'Шик',
+    desc: 'Гнутая спинка и тёплый орех. Делаем с мягкой обивкой, красим в любой цвет.',
+    photos: ['photos/shik-1.jpg', 'photos/shik-2.jpg', 'photos/shik-3.jpg'],
+  },
+  {
+    name: 'Терезза',
+    desc: 'Овальная спинка на тонком каркасе. Ткань и цвет — под клиента.',
+    photos: ['photos/terezza-1.jpg'],
+  },
+  {
+    name: 'Леон',
+    desc: 'Комплект: стол и стулья. Сидушка мягкая или деревянная, цвет любой.',
+    photos: [
+      'photos/leon-set-1.jpg',
+      'photos/leon-set-2.jpg',
+      'photos/leon-set-3.jpg',
+      'photos/leon-1.jpg',
+    ],
+    wide: true,
+  },
+  {
+    name: 'Хермес',
+    desc: 'Стулья и столы. Стол изготавливаем по вашим размерам.',
+    photos: ['photos/hermes-1.jpg', 'photos/hermes-2.jpg', 'photos/hermes-3.jpg'],
+  },
+  {
+    name: 'Мазерати',
+    desc: 'Мягкие стулья с открытой спинкой и стол «Луч» с лучевым шпоном.',
+    photos: ['photos/mazerati-1.jpg', 'photos/mazerati-3.jpg', 'photos/mazerati-2.jpg'],
+    wide: true,
+  },
+  {
+    name: 'Фоджи',
+    desc: 'Круглая мягкая спинка и подлокотник из массива. Ткань — на выбор.',
+    photos: ['photos/foji-1.jpg', 'photos/foji-2.jpg'],
+  },
+  {
+    name: 'Сканди барные',
+    desc: 'Барные и полубарные — два роста под стойку или кухонный остров.',
+    photos: ['photos/bar-1.jpg', 'photos/bar-2.jpg', 'photos/bar-3.jpg', 'photos/bar-4.jpg'],
+  },
+  {
+    name: 'Майбах',
+    desc: 'Стол и стулья комплектом. Цвет, ткань и размер стола — под вас.',
+    photos: ['photos/maybah-1.jpg', 'photos/maybah-2.jpg', 'photos/maybah-3.jpg'],
+  },
+  {
+    name: 'Каспий',
+    desc: 'Лаконичная форма, массив дерева, обивка на выбор.',
+    photos: ['photos/kaspiy-1.jpg'],
+  },
+  {
+    name: 'Скарлет',
+    desc: 'Гарнитур для столовой: цвет и ткань согласуем под интерьер.',
+    photos: ['photos/skarlet-1.jpg', 'photos/skarlet-2.jpg', 'photos/skarlet-3.jpg'],
+    wide: true,
+  },
+  {
+    name: 'Лагуна',
+    desc: 'Любой цвет каркаса и любая ткань обивки — под ваш интерьер.',
+    photos: ['photos/chair-laguna.jpg'],
+  },
+];
+---
+
+<section class="section catalog" id="catalog">
+  <div class="container">
+    <p class="tag">Каталог</p>
+    <h2 data-split>Модели в работе</h2>
+    <p class="lead">
+      Любую делаем под заказ: ткань, цвет каркаса и размеры — под ваш интерьер.
+    </p>
+  </div>
+
+  <div class="container catalog__grid">
+    {items.map((it, i) => (
+      <article class:list={['catalog__card', { 'catalog__card--wide': it.wide }]}>
+        <div class="catalog__media" data-slider={it.photos.length > 1 ? '' : null}>
+          <div class="catalog__track">
+            {it.photos.map((p, j) => (
+              <img
+                src={asset(p)}
+                alt={`${it.name} — фото ${j + 1}`}
+                loading={i < 3 && j === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            ))}
+          </div>
+          {it.photos.length > 1 && (
+            <div class="catalog__dots">
+              {it.photos.map((_, j) => (
+                <button
+                  type="button"
+                  class="catalog__dot"
+                  aria-label={`${it.name}, фото ${j + 1}`}
+                ></button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div class="catalog__body">
+          <h3>{it.name}</h3>
+          <p class="catalog__desc">{it.desc}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* Плотная сетка: зазор намеренно маленький — каталог должен читаться
+     как разворот, а не как разбросанные карточки */
+  .catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(8px, 1vw, 16px);
+    margin-top: var(--block-gap);
+  }
+  .catalog__card--wide {
+    grid-column: span 2;
+  }
+
+  .catalog__media {
+    position: relative;
+    overflow: hidden;
+    background: var(--c-surface);
+    border-radius: 0; /* кадры без скругления — перебиваем rounded.css */
+  }
+  .catalog__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .catalog__track::-webkit-scrollbar { display: none; }
+  .catalog__track img {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    width: 100%;
+    /* Вертикальный кадр — мебель снята в рост. Широкая карточка ниже,
+       иначе она вылезает за экран и разглядывать приходится скроллом. */
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .catalog__card--wide .catalog__track img {
+    aspect-ratio: 16 / 11;
+  }
+  /* Курсор-подсказка только там, где есть что листать */
+  [data-slider] .catalog__track { cursor: pointer; }
+
+  .catalog__dots {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    gap: 6px;
+  }
+  .catalog__dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255 255 255 / 0.55);
+    cursor: pointer;
+  }
+  .catalog__dot.is-active { background: #fff; }
+
+  .catalog__body {
+    padding-block: 14px 4px;
+  }
+  .catalog__body h3 {
+    margin: 0 0 4px;
+  }
+  .catalog__desc {
+    font-size: var(--fs-small);
+    /* Мера на самом тексте: описание живёт в колонке, но при широкой
+       карточке колонка вдвое шире — без потолка строка расползается */
+    max-width: 46ch;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .catalog__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .catalog__card--wide { grid-column: span 2; }
+    .catalog__card--wide .catalog__track img { aspect-ratio: 16 / 10; }
+  }
+  @media (max-width: 560px) {
+    .catalog__grid { grid-template-columns: 1fr; }
+    .catalog__card--wide { grid-column: span 1; }
+    .catalog__card--wide .catalog__track img { aspect-ratio: 3 / 4; }
+  }
+</style>
+
+<script>
+  // Листание кадров: клик по левой трети — назад, по остальному — вперёд,
+  // по кругу. Плюс нативный свайп и точки-индикаторы.
+  document.querySelectorAll<HTMLElement>('[data-slider]').forEach((slider) => {
+    const track = slider.querySelector<HTMLElement>('.catalog__track');
+    const dots = Array.from(slider.querySelectorAll<HTMLElement>('.catalog__dot'));
+    if (!track || !dots.length) return;
+
+    const index = () => Math.round(track.scrollLeft / track.clientWidth);
+    const paint = (i = index()) =>
+      dots.forEach((d, di) => d.classList.toggle('is-active', di === i));
+
+    const go = (i: number) => {
+      const next = (i + dots.length) % dots.length;
+      const target = next * track.clientWidth;
+      track.scrollTo({ left: target, behavior: 'smooth' });
+      paint(next);
+      // scroll-snap иногда глушит плавную прокрутку — дожимаем кадр,
+      // иначе слайдер залипает между позициями
+      setTimeout(() => {
+        if (Math.abs(track.scrollLeft - target) > 4) track.scrollLeft = target;
+      }, 450);
+    };
+
+    paint();
+    track.addEventListener('scroll', () => paint(), { passive: true });
+    track.addEventListener('click', (e) => {
+      const r = track.getBoundingClientRect();
+      go(index() + (e.clientX - r.left < r.width / 3 ? -1 : 1));
+    });
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+  });
+</script>

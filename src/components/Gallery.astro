@@ -1,0 +1,130 @@
+---
+// Галерея по мотивам prmpt: рассыпанная контрастная сетка на 6 колонок —
+// крупные кадры (span 3) чередуются с мелкими (span 2), пустые ячейки
+// дают воздух. Карточки скейлятся при входе/выходе из вьюпорта (RAF).
+// 10 фото, webp ~50КБ, загрузка eager — критический путь лёгкий.
+// Сетка 12 колонок: big (span 4) ≈ 0.7 высоты экрана, small (span 2–3) меньше —
+// карточка всегда ниже вьюпорта по высоте, иначе рост из нижнего угла
+// происходит за границей экрана и виден белый провал.
+import { asset } from '../lib/asset';
+
+// Кадры заказчика. Пропорция ячейки 2:3 задана в CSS, исходники вертикальные
+// (960×1280 и близкие) — кроп минимальный. Горизонтальные сюда не ставим:
+// в 2:3 от них остаётся узкая полоса по центру.
+const items = [
+  { src: '/photos/scandi-1.jpg', start: 1, span: 4, label: 'Сканди' },
+  { src: '/photos/leon-1.jpg', start: 8, span: 3, label: 'Леон' },
+  { src: '/photos/shik-1.jpg', start: 5, span: 2, label: 'Шик' },
+  { src: '/photos/maybah-1.jpg', start: 9, span: 4, label: 'Майбах' },
+  { src: '/photos/hermes-1.jpg', start: 2, span: 3, label: 'Хермес' },
+  { src: '/photos/terezza-1.jpg', start: 7, span: 2, label: 'Терезза' },
+  { src: '/photos/skarlet-1.jpg', start: 10, span: 3, label: 'Скарлет' },
+  { src: '/photos/mazerati-2.jpg', start: 1, span: 2, label: 'Мазерати' },
+  { src: '/photos/scandi-3.jpg', start: 5, span: 4, label: 'Сканди' },
+  { src: '/photos/shik-2.jpg', start: 11, span: 2, label: 'Шик' },
+];
+---
+
+<section class="section section--flush-top gallery">
+  <div class="container">
+    <div class="gallery__grid">
+      {items.map((it, i) => (
+        <figure
+          class:list={['bp-card', { 'bp-card--first reveal': i < 2 }]}
+          style={`grid-column: ${it.start} / span ${it.span};`}
+        >
+          <img src={asset(it.src)} alt={it.label} loading="eager" decoding="async" />
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(12px, 2vw, 28px);
+    align-items: end; /* разновысокие карточки сидят на общей нижней линии ряда */
+  }
+  .bp-card {
+    margin: 0;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    transform: scale(0);
+    will-change: transform;
+    background: var(--c-surface);
+  }
+  .bp-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Первый ряд прижат к hero и появляется простым плавным фейдом
+     (класс .reveal из global.css), без скейла из угла */
+  .bp-card--first {
+    transform: none !important;
+  }
+
+  @media (max-width: 640px) {
+    /* На мобильном — проще: две колонки, чередование ширины */
+    .gallery__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bp-card { grid-column: auto / span 1 !important; }
+    .bp-card:nth-child(3n) { grid-column: auto / span 2 !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bp-card {
+      transform: none !important;
+      will-change: auto;
+    }
+  }
+</style>
+
+<script>
+  // Масштаб карточек — каждый кадр от позиции во вьюпорте, с инерцией.
+  // Первый кадр синхронизируется без анимации, чтобы при попадании
+  // в середину блока не было пустого белого экрана.
+  const cards = Array.from(
+    document.querySelectorAll<HTMLElement>('.bp-card:not(.bp-card--first)')
+  );
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduced && cards.length) {
+    const setOrigins = () => {
+      const mid = window.innerWidth / 2;
+      for (const c of cards) {
+        const r = c.getBoundingClientRect();
+        c.style.transformOrigin =
+          r.left + r.width / 2 < mid ? 'right bottom' : 'left bottom';
+      }
+    };
+    setOrigins();
+    window.addEventListener('resize', setOrigins);
+
+    const current = new WeakMap<HTMLElement, number>();
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+    let first = true;
+
+    const targetOf = (r: DOMRect, vh: number) => {
+      if (r.bottom <= 0 || r.top >= vh) return 0;
+      // Вход: карточка полностью раскрыта уже к нижней половине экрана
+      const enter = Math.min(1, (vh - r.top) / (vh * 0.5));
+      const exit = Math.min(1, r.bottom / (vh * 0.35));
+      return easeOut(Math.max(0, Math.min(enter, exit)));
+    };
+
+    const frame = () => {
+      const vh = window.innerHeight;
+      for (const c of cards) {
+        const target = targetOf(c.getBoundingClientRect(), vh);
+        const prev = first ? target : (current.get(c) ?? 0);
+        const next = prev + (target - prev) * 0.18;
+        current.set(c, next);
+        c.style.transform = `scale(${next < 0.001 ? 0 : next})`;
+      }
+      first = false;
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+</script>
