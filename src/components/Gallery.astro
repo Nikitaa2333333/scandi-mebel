@@ -2,7 +2,7 @@
 // Галерея по мотивам prmpt: рассыпанная контрастная сетка на 6 колонок —
 // крупные кадры (span 3) чередуются с мелкими (span 2), пустые ячейки
 // дают воздух. Карточки скейлятся при входе/выходе из вьюпорта (RAF).
-// 10 фото, webp ~50КБ, загрузка eager — критический путь лёгкий.
+// 10 фото, webp, первые 2 eager (видны сразу), остальные lazy.
 // Сетка 12 колонок: big (span 4) ≈ 0.7 высоты экрана, small (span 2–3) меньше —
 // карточка всегда ниже вьюпорта по высоте, иначе рост из нижнего угла
 // происходит за границей экрана и виден белый провал.
@@ -12,16 +12,16 @@ import { asset } from '../lib/asset';
 // (960×1280 и близкие) — кроп минимальный. Горизонтальные сюда не ставим:
 // в 2:3 от них остаётся узкая полоса по центру.
 const items = [
-  { src: '/photos/scandi-1.jpg', start: 1, span: 4, label: 'Сканди' },
-  { src: '/photos/leon-1.jpg', start: 8, span: 3, label: 'Леон' },
-  { src: '/photos/shik-1.jpg', start: 5, span: 2, label: 'Шик' },
-  { src: '/photos/maybah-1.jpg', start: 9, span: 4, label: 'Майбах' },
-  { src: '/photos/hermes-1.jpg', start: 2, span: 3, label: 'Хермес' },
-  { src: '/photos/terezza-1.jpg', start: 7, span: 2, label: 'Терезза' },
-  { src: '/photos/skarlet-1.jpg', start: 10, span: 3, label: 'Скарлет' },
-  { src: '/photos/mazerati-2.jpg', start: 1, span: 2, label: 'Мазерати' },
-  { src: '/photos/scandi-3.jpg', start: 5, span: 4, label: 'Сканди' },
-  { src: '/photos/shik-2.jpg', start: 11, span: 2, label: 'Шик' },
+  { src: '/photos/scandi-1.webp', start: 1, span: 4, label: 'Сканди' },
+  { src: '/photos/leon-1.webp', start: 8, span: 3, label: 'Леон' },
+  { src: '/photos/shik-1.webp', start: 5, span: 2, label: 'Шик' },
+  { src: '/photos/maybah-1.webp', start: 9, span: 4, label: 'Майбах' },
+  { src: '/photos/hermes-1.webp', start: 2, span: 3, label: 'Хермес' },
+  { src: '/photos/terezza-1.webp', start: 7, span: 2, label: 'Терезза' },
+  { src: '/photos/skarlet-1.webp', start: 10, span: 3, label: 'Скарлет' },
+  { src: '/photos/mazerati-2.webp', start: 1, span: 2, label: 'Мазерати' },
+  { src: '/photos/scandi-3.webp', start: 5, span: 4, label: 'Сканди' },
+  { src: '/photos/shik-2.webp', start: 11, span: 2, label: 'Шик' },
 ];
 ---
 
@@ -33,7 +33,7 @@ const items = [
           class:list={['bp-card', { 'bp-card--first reveal': i < 2 }]}
           style={`grid-column: ${it.start} / span ${it.span};`}
         >
-          <img src={asset(it.src)} alt={it.label} loading="eager" decoding="async" />
+          <img src={asset(it.src)} alt={it.label} loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
         </figure>
       ))}
     </div>
