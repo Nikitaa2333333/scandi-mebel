@@ -1,5 +1,9 @@
 ---
 // Липкая шапка без фона — секции проезжают под ней.
+// Телефон и иконки — из общих модулей, копий здесь не держим.
+import Icon from './Icon.astro';
+import { PHONE_HUMAN, PHONE_TEL, WHATSAPP_LINK, MAX_LINK } from '../lib/contacts';
+
 const nav = [
   { href: '#configurator', label: 'Конфигуратор' },
   { href: '#models', label: 'Модели' },
@@ -14,7 +18,21 @@ const nav = [
     <nav class="header__nav">
       {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
-    <a href="#form" class="header__cta">Оставить заявку</a>
+    <div class="header__contact">
+      <a href={WHATSAPP_LINK} class="header__msg" target="_blank" rel="noopener" aria-label="Написать в WhatsApp">
+        <Icon name="whatsapp" size={18} />
+      </a>
+      <a
+        href={MAX_LINK || PHONE_TEL}
+        class="header__msg"
+        target={MAX_LINK ? '_blank' : undefined}
+        rel={MAX_LINK ? 'noopener' : undefined}
+        aria-label="Написать в MAX"
+      >
+        <Icon name="max" size={18} />
+      </a>
+      <a href={PHONE_TEL} class="header__phone">{PHONE_HUMAN}</a>
+    </div>
   </div>
 </header>
 
@@ -41,13 +59,28 @@ const nav = [
     gap: clamp(16px, 2.5vw, 36px);
     font-size: var(--fs-small);
   }
-  .header__cta {
+  /* Телефон в шапке: она sticky, значит номер виден на любом экране */
+  .header__contact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header__phone {
     font-size: var(--fs-small);
-    color: var(--c-green);
     font-weight: 450;
     white-space: nowrap;
   }
+  .header__msg {
+    display: inline-flex;
+    color: var(--c-green);
+  }
+  .header__msg:hover { opacity: 0.7; }
   @media (max-width: 760px) {
     .header__nav { display: none; }
+  }
+  /* На узком экране номер цифрами не влезает рядом с логотипом —
+     остаётся иконка WhatsApp, она и есть основной канал связи */
+  @media (max-width: 480px) {
+    .header__phone { display: none; }
   }
 </style>

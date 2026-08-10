@@ -1,35 +1,22 @@
 ---
-// Контакты. Телефон вынесен в константы: он же идёт в tel:, в ссылку
-// WhatsApp и в микроразметку — расхождение между ними ломает и вёрстку,
-// и карточку организации в поиске.
+// Контакты. Номер и ссылки — из общего модуля, здесь копий не держим.
 import Icon from './Icon.astro';
-
-const PHONE_HUMAN = '+7 986 111 22 30';
-const PHONE_RAW = '79861112230'; // без плюса и пробелов — формат для wa.me
-// TODO: подставить ссылку на профиль MAX, когда заказчик её пришлёт.
-// Формат ссылки по номеру у MAX официально не задокументирован — не угадываем,
-// пока ссылки нет, кнопка ведёт на звонок.
-const MAX_LINK = '';
+import { PHONE_HUMAN, PHONE_TEL, WHATSAPP_LINK, MAX_LINK } from '../lib/contacts';
 ---
 
 <div class="contacts">
-  <a class="contacts__phone" href={`tel:+${PHONE_RAW}`}>{PHONE_HUMAN}</a>
+  <a class="contacts__phone" href={PHONE_TEL}>{PHONE_HUMAN}</a>
   <p class="contacts__note small">Звоните или пишите — отвечаем в мессенджерах быстрее</p>
 
   <div class="contacts__row">
-    <a
-      class="contacts__btn"
-      href={`https://wa.me/${PHONE_RAW}`}
-      target="_blank"
-      rel="noopener"
-    >
+    <a class="contacts__btn" href={WHATSAPP_LINK} target="_blank" rel="noopener">
       <Icon name="whatsapp" size={22} />
       <span>WhatsApp</span>
     </a>
 
     <a
       class="contacts__btn"
-      href={MAX_LINK || `tel:+${PHONE_RAW}`}
+      href={MAX_LINK || PHONE_TEL}
       target={MAX_LINK ? '_blank' : undefined}
       rel={MAX_LINK ? 'noopener' : undefined}
     >
