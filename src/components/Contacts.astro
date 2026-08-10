@@ -1,0 +1,76 @@
+---
+// Контакты. Телефон вынесен в константы: он же идёт в tel:, в ссылку
+// WhatsApp и в микроразметку — расхождение между ними ломает и вёрстку,
+// и карточку организации в поиске.
+import Icon from './Icon.astro';
+
+const PHONE_HUMAN = '+7 986 111 22 30';
+const PHONE_RAW = '79861112230'; // без плюса и пробелов — формат для wa.me
+// TODO: подставить ссылку на профиль MAX, когда заказчик её пришлёт.
+// Формат ссылки по номеру у MAX официально не задокументирован — не угадываем,
+// пока ссылки нет, кнопка ведёт на звонок.
+const MAX_LINK = '';
+---
+
+<div class="contacts">
+  <a class="contacts__phone" href={`tel:+${PHONE_RAW}`}>{PHONE_HUMAN}</a>
+  <p class="contacts__note small">Звоните или пишите — отвечаем в мессенджерах быстрее</p>
+
+  <div class="contacts__row">
+    <a
+      class="contacts__btn"
+      href={`https://wa.me/${PHONE_RAW}`}
+      target="_blank"
+      rel="noopener"
+    >
+      <Icon name="whatsapp" size={22} />
+      <span>WhatsApp</span>
+    </a>
+
+    <a
+      class="contacts__btn"
+      href={MAX_LINK || `tel:+${PHONE_RAW}`}
+      target={MAX_LINK ? '_blank' : undefined}
+      rel={MAX_LINK ? 'noopener' : undefined}
+    >
+      <Icon name="max" size={22} />
+      <span>MAX</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .contacts__phone {
+    display: inline-block;
+    font-size: var(--fs-h2);
+    line-height: var(--lh-head);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .contacts__note {
+    margin: 10px 0 0;
+  }
+  .contacts__row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: var(--block-gap);
+  }
+  /* Кнопка мессенджера: иконка красится currentColor, поэтому одна
+     и та же разметка работает и на светлой секции, и на тёмной */
+  .contacts__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border: 1px solid currentColor;
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  .contacts__btn:hover {
+    opacity: 0.7;
+  }
+  .contacts__btn svg {
+    flex: none;
+  }
+</style>

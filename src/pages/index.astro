@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Catalog from '../components/Catalog.astro';
 import Configurator from '../components/Configurator.astro';
+import Contacts from '../components/Contacts.astro';
 import { asset } from '../lib/asset';
 
 // Сценарии, с которыми приходят — из повторяющихся запросов в канале заказчика
@@ -380,6 +381,7 @@ const includes = [
             Оставьте контакты — вернёмся с ответом, подскажем по моделям и тканям
             и посчитаем стоимость под ваши размеры.
           </p>
+          <Contacts />
         </div>
         <form class="form reveal" action={asset('thanks')} method="get">
           <label>
