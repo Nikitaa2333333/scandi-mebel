@@ -8,9 +8,40 @@ import '../styles/rounded.css';
 interface Props {
   title: string;
   description?: string;
+  /** картинка для соцсетей, относительно корня сайта */
+  image?: string;
 }
 
-const { title, description = '' } = Astro.props;
+const { title, description = '', image = 'og.jpg' } = Astro.props;
+
+// Астро подставит site из конфига. Без него canonical и OG будут
+// относительными, а поисковики такие ссылки не склеивают.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+
+// Микроразметка: поисковик понимает, что это мебельная мастерская,
+// а не блог. Даёт расширенный сниппет и карточку организации.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FurnitureStore',
+  name: 'Scandi Мебель',
+  description,
+  url: canonical.href,
+  image: ogImage.href,
+  priceRange: '$$',
+  makesOffer: [
+    'Сканди', 'Шик', 'Терезза', 'Леон', 'Хермес', 'Мазерати',
+    'Фоджи', 'Сканди барные', 'Майбах', 'Каспий', 'Скарлет', 'Лагуна',
+  ].map((name) => ({
+    '@type': 'Offer',
+    itemOffered: {
+      '@type': 'Product',
+      name: `${name} — стулья и столы из массива на заказ`,
+      material: 'массив дерева',
+      brand: { '@type': 'Brand', name: 'Scandi Мебель' },
+    },
+  })),
+};
 ---
 
 <!doctype html>
@@ -20,6 +51,28 @@ const { title, description = '' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical.href} />
+
+    <!-- Карточка при репосте в Telegram, ВК и мессенджеры -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Scandi Мебель" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#404f1d" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪑</text></svg>"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
   <body>
     <slot />

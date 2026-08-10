@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Карта сайта — с неё начинают и Яндекс, и Google
+Sitemap: https://scandi-mebel.vercel.app/sitemap-index.xml

@@ -1,11 +1,18 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
-// GitHub Pages отдаёт сайт из подпапки /<repo>, локальный дев — из корня.
-// Без base все пути из asset() на Pages уедут в несуществующую папку.
-const onPages = process.env.GITHUB_ACTIONS === 'true';
+// Адрес сайта нужен для canonical, sitemap.xml и Open Graph — без него
+// поисковики видят относительные ссылки и не склеивают страницы.
+// Меняется одной переменной: на боевом домене ставим SITE_URL=https://домен.ру
+const SITE = process.env.SITE_URL || 'https://scandi-mebel.vercel.app';
+
+// GitHub Pages отдаёт сайт из подпапки /<repo>. На Vercel и своём домене —
+// из корня, поэтому base подставляется только для Pages.
+const onPages = process.env.GITHUB_PAGES === 'true';
 
 export default defineConfig({
-  site: 'https://nikitaa2333333.github.io',
+  site: SITE,
   base: onPages ? '/scandi-mebel' : '/',
   compressHTML: true,
+  integrations: [sitemap()],
 });
