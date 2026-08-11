@@ -45,7 +45,7 @@ const includes = [
       <video
         class="herofull__video"
         src={asset('video/hero-assembly.mp4')}
-        poster={asset('photos/hero-assembly.jpg')}
+        poster={asset('photos/hero-assembly.webp')}
         autoplay
         muted
         loop
@@ -90,7 +90,7 @@ const includes = [
       </div>
       <div class="container fabrics__media">
         <img
-          src={asset('photos/fabrics.jpg')}
+          src={asset('photos/fabrics.webp')}
           alt="Образцы обивочных тканей: букле, рогожка, велюр, экокожа — десятки цветов"
           loading="lazy"
           decoding="async"
@@ -221,7 +221,7 @@ const includes = [
     <!-- 8. Фото-пауза -->
     <figure class="strip">
       <img
-        src={asset('photos/leon-5.jpg')}
+        src={asset('photos/leon-5.webp')}
         alt="Овальный стол из ореха со стульями в светлой столовой"
         loading="lazy"
         decoding="async"
@@ -256,7 +256,7 @@ const includes = [
         </div>
         <figure class="split__photo reveal">
           <img
-            src={asset('photos/founder.jpg')}
+            src={asset('photos/founder.webp')}
             alt="Основатель мастерской в цехе"
             loading="lazy"
             decoding="async"
@@ -339,7 +339,7 @@ const includes = [
         </div>
         <figure class="split__photo reveal">
           <img
-            src={asset('photos/mazerati-3.jpg')}
+            src={asset('photos/mazerati-3.webp')}
             alt="Стол Луч с лучевым шпоном и стулья Мазерати"
             loading="lazy"
             decoding="async"
@@ -383,7 +383,7 @@ const includes = [
           </p>
           <Contacts />
         </div>
-        <form class="form reveal" action={asset('thanks')} method="get">
+        <form id="lead-form" class="form reveal" action={asset('thanks')} method="get">
           <label>
             <span class="tag">Имя</span>
             <input type="text" name="name" required autocomplete="name" />
@@ -396,11 +396,18 @@ const includes = [
             <span class="tag">Что нужно</span>
             <input type="text" name="task" autocomplete="off" />
           </label>
+          <label class="form__hp" aria-hidden="true">
+            <span class="tag">Сайт</span>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
           <label class="form__check">
             <input type="checkbox" required />
             <span class="small">Согласен(на) на обработку персональных данных</span>
           </label>
           <button class="btn" type="submit">Отправить</button>
+          <p class="form__error small" hidden>
+            Не получилось отправить заявку. Позвоните нам напрямую или попробуйте ещё раз.
+          </p>
         </form>
       </div>
     </section>
@@ -480,4 +487,47 @@ const includes = [
       gap: clamp(24px, 4vw, 64px);
     }
   }
+
+  /* Honeypot: скрыт от людей визуально и от скринридеров, но остаётся
+     в DOM и таб-порядке за пределами экрана — часть простых ботов
+     всё равно его находит и заполняет, выдавая себя. */
+  .form__hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .form__error {
+    color: var(--color-danger, #c0392b);
+  }
 </style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#lead-form');
+  const errorEl = form?.querySelector<HTMLElement>('.form__error');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl?.setAttribute('hidden', '');
+
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    submitBtn?.setAttribute('disabled', '');
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('request failed');
+      window.location.href = form.action;
+    } catch {
+      errorEl?.removeAttribute('hidden');
+      submitBtn?.removeAttribute('disabled');
+    }
+  });
+</script>
