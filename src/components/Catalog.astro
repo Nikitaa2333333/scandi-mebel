@@ -109,6 +109,8 @@ const items: Item[] = [
                 alt={`${it.name} — фото ${j + 1}`}
                 loading={i < 3 && j === 0 ? 'eager' : 'lazy'}
                 decoding="async"
+                data-zoom
+                data-zoom-group={`model-${it.name}`}
               />
             ))}
           </div>
@@ -175,8 +177,7 @@ const items: Item[] = [
   .catalog__card--wide .catalog__track img {
     aspect-ratio: 16 / 11;
   }
-  /* Курсор-подсказка только там, где есть что листать */
-  [data-slider] .catalog__track { cursor: pointer; }
+  /* Курсор-подсказку на увеличение ставит Lightbox через [data-zoom] */
 
   .catalog__dots {
     position: absolute;
@@ -223,8 +224,10 @@ const items: Item[] = [
 </style>
 
 <script>
-  // Листание кадров: клик по левой трети — назад, по остальному — вперёд,
-  // по кругу. Плюс нативный свайп и точки-индикаторы.
+  // Листание кадров: точки-индикаторы и нативный свайп.
+  // Клик по кадру НЕ листает — он открывает фото в полный размер (Lightbox),
+  // а внутри просмотра есть свои стрелки по кадрам этой же модели.
+  // Раньше клик листал, и два поведения на одном элементе конфликтовали.
   document.querySelectorAll<HTMLElement>('[data-slider]').forEach((slider) => {
     const track = slider.querySelector<HTMLElement>('.catalog__track');
     const dots = Array.from(slider.querySelectorAll<HTMLElement>('.catalog__dot'));
@@ -248,10 +251,6 @@ const items: Item[] = [
 
     paint();
     track.addEventListener('scroll', () => paint(), { passive: true });
-    track.addEventListener('click', (e) => {
-      const r = track.getBoundingClientRect();
-      go(index() + (e.clientX - r.left < r.width / 3 ? -1 : 1));
-    });
     dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
   });
 </script>

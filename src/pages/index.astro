@@ -5,6 +5,8 @@ import Footer from '../components/Footer.astro';
 import Catalog from '../components/Catalog.astro';
 import Configurator from '../components/Configurator.astro';
 import Contacts from '../components/Contacts.astro';
+import Fabrics from '../components/Fabrics.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { asset } from '../lib/asset';
 
 // Сценарии, с которыми приходят — из повторяющихся запросов в канале заказчика
@@ -77,35 +79,8 @@ const includes = [
     <!-- 3. Конфигуратор цвета обивки -->
     <Configurator />
 
-    <!-- 4. Текстиль — витрина образцов -->
-    <section class="section fabrics" id="fabrics">
-      <div class="container">
-        <p class="tag">Текстиль</p>
-        <h2 data-split>Огромный выбор ткани</h2>
-        <p class="lead">
-          Десятки фактур и цветов: букле, рогожка, велюр, шенилл, экокожа.
-          Вы выбираете вариант под свой интерьер — мы обшиваем мебель именно
-          им, индивидуально под вас.
-        </p>
-      </div>
-      <div class="container fabrics__media">
-        <img
-          src={asset('photos/fabrics.webp')}
-          alt="Образцы обивочных тканей: букле, рогожка, велюр, экокожа — десятки цветов"
-          loading="lazy"
-          decoding="async"
-          width="1536"
-          height="1024"
-        />
-      </div>
-      <div class="container">
-        <ul class="list-plain">
-          <li><h3>Привозим образцы на выбор</h3></li>
-          <li><h3>Смотрите ткань при своём свете</h3></li>
-          <li><h3>Каркас красим в тон под неё</h3></li>
-        </ul>
-      </div>
-    </section>
+    <!-- 4. Текстиль — каталог образцов -->
+    <Fabrics />
 
     <!-- 4. С чем приходят -->
     <section class="section" id="work">
@@ -414,6 +389,7 @@ const includes = [
   </main>
 
   <Footer />
+  <Lightbox />
 </Layout>
 
 <style>

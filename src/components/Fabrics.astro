@@ -1,0 +1,78 @@
+---
+// Каталог тканей: девять «вееров» образцов ровной плиткой.
+// Все исходники одного размера (896×1200) и сняты на белом фоне — поэтому
+// сетка получается единой без кропа и подгонки. Клик открывает кадр
+// целиком: разглядеть фактуру в плитке невозможно, а именно она и продаёт.
+import { asset } from '../lib/asset';
+
+const sheets = Array.from({ length: 9 }, (_, i) => {
+  const n = String(i + 1).padStart(2, '0');
+  return { src: `photos/fabrics/fabric-${n}.webp`, n: i + 1 };
+});
+---
+
+<section class="section fabrics" id="fabrics">
+  <div class="container">
+    <p class="tag">Текстиль</p>
+    <h2 data-split>Каталог тканей</h2>
+    <p class="lead">
+      Букле, рогожка, велюр, шенилл, экокожа — десятки фактур и цветов.
+      Вы выбираете вариант под свой интерьер, мы обшиваем мебель именно им.
+    </p>
+    <p class="fabrics__hint small">Нажмите на образец, чтобы рассмотреть фактуру.</p>
+  </div>
+
+  <div class="container fabrics__grid">
+    {sheets.map((s) => (
+      <figure class="fabrics__cell">
+        <img
+          src={asset(s.src)}
+          alt={`Образцы обивочной ткани, лист ${s.n}`}
+          loading="lazy"
+          decoding="async"
+          width="896"
+          height="1200"
+          data-zoom
+          data-zoom-group="fabrics"
+        />
+      </figure>
+    ))}
+  </div>
+
+  <div class="container">
+    <ul class="list-plain">
+      <li><h3>Привозим образцы на выбор</h3></li>
+      <li><h3>Смотрите ткань при своём свете</h3></li>
+      <li><h3>Каркас красим в тон под неё</h3></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .fabrics__hint {
+    margin-top: 10px;
+  }
+  /* Плотная единая плитка: зазор маленький, все ячейки одного размера —
+     листы образцов должны читаться как один разворот каталога */
+  .fabrics__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(6px, 0.8vw, 12px);
+    margin-block: var(--block-gap);
+  }
+  .fabrics__cell {
+    margin: 0;
+    background: #fff; /* исходники сняты на белом — фон ячейки совпадает */
+  }
+  .fabrics__cell img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 896 / 1200; /* родная пропорция: кропа нет */
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 700px) {
+    .fabrics__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
