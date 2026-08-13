@@ -494,7 +494,11 @@ const includes = [
 
     submitBtn?.setAttribute('disabled', '');
     try {
-      const res = await fetch('/api/lead', {
+      // Адрес приёма заявок: на Vercel это своя функция по относительному
+      // пути, на SprintHost — абсолютный адрес функции Vercel (статический
+      // хостинг Node-функции не выполняет). Подставляется при сборке.
+      const endpoint = import.meta.env.PUBLIC_LEAD_ENDPOINT || '/api/lead';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

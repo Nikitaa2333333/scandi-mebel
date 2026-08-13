@@ -1,41 +1,57 @@
-name: Deploy to GitHub Pages
+name: Deploy to SprintHost
 
+# Любой пуш в main пересобирает сайт и раскладывает его на хостинг.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Параллельные деплои не нужны: важен последний коммит, а не все подряд
 concurrency:
-  group: pages
+  # Если два пуша прилетели подряд, побеждает последний — иначе два
+  # незаконченных rsync гонятся и могут покорёжить живой сайт.
+  group: deploy
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
+          cache-dependency-path: package-lock.json
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        env:
+          # Боевой адрес: из него собираются canonical, sitemap и Open Graph.
+          SITE_URL: https://scandi-chair.ru
+          # Приём заявок будет на Google Apps Script. Когда появится адрес
+          # веб-приложения — подставить сюда, форма подхватит его при сборке.
+          # PUBLIC_LEAD_ENDPOINT: https://script.google.com/macros/s/.../exec
+        run: npx astro build
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to SprintHost
+        env:
+          HOST: ${{ secrets.SSH_HOST }}
+          USER: ${{ secrets.SSH_USER }}
+          PORT: ${{ secrets.SSH_PORT || '22' }}
+          TARGET: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
+          # Слэш в конце локального пути обязателен: копируется содержимое
+          # dist, а не сама папка. --delete убирает с хостинга файлы,
+          # которых больше нет в сборке.
+          rsync -az --delete \
+            -e "ssh -p $PORT" \
+            dist/ "$USER@$HOST:$TARGET"

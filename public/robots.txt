@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Карта сайта — с неё начинают и Яндекс, и Google
-Sitemap: https://scandi-mebel.vercel.app/sitemap-index.xml
+Sitemap: https://scandi-chair.ru/sitemap-index.xml
