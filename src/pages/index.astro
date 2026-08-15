@@ -512,9 +512,13 @@ const includes = [
       // пути, на SprintHost — абсолютный адрес функции Vercel (статический
       // хостинг Node-функции не выполняет). Подставляется при сборке.
       const endpoint = import.meta.env.PUBLIC_LEAD_ENDPOINT || '/api/lead';
+      // ВАЖНО: content-type именно text/plain, хотя шлём JSON.
+      // С application/json браузер сначала отправляет preflight OPTIONS,
+      // а Google Apps Script на него не отвечает — запрос падает на CORS
+      // ещё до отправки. text/plain делает запрос «простым», без preflight.
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error('request failed');
