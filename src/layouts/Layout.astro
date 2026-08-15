@@ -5,15 +5,18 @@ import '../styles/blocks.css';
 // Скругления — надстройка поверх системы, обязана идти последней
 import '../styles/rounded.css';
 import models from '../data/models.json';
+import { asset } from '../lib/asset';
 
 interface Props {
   title: string;
   description?: string;
   /** картинка для соцсетей, относительно корня сайта */
   image?: string;
+  /** убрать страницу из поиска: служебным страницам в выдаче делать нечего */
+  noindex?: boolean;
 }
 
-const { title, description = '', image = 'og.jpg' } = Astro.props;
+const { title, description = '', image = 'og.jpg', noindex = false } = Astro.props;
 
 // Астро подставит site из конфига. Без него canonical и OG будут
 // относительными, а поисковики такие ссылки не склеивают.
@@ -102,12 +105,17 @@ const schema = {
     <meta property="og:locale" content="ru_RU" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <meta name="robots" content="index, follow" />
+    {/* follow оставляем и на закрытых страницах: ссылки со страницы робот
+        пройдёт, саму её в индекс не возьмёт */}
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
     <meta name="theme-color" content="#404f1d" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪑</text></svg>"
-    />
+    {/* Иконка отдельными файлами, а не data:-строкой: поисковики читают
+        только настоящий адрес, и в выдаче Яндекса у сайта с data:-иконкой
+        пустой квадрат. ico — для поиска и старых браузеров, svg — для
+        современных, png — для плитки на iOS. */}
+    <link rel="icon" href={asset('favicon.ico')} sizes="32x32" />
+    <link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
 
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
