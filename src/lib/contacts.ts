@@ -15,7 +15,8 @@ export const PHONE_RAW = '79861112230';
 export const PHONE_TEL = `tel:+${PHONE_RAW}`;
 export const WHATSAPP_LINK = `https://wa.me/${PHONE_RAW}`;
 
-// TODO: ссылка на профиль MAX — ждём от заказчика.
-// Формат ссылки по номеру у MAX официально не задокументирован,
-// поэтому не угадываем: пока пусто, кнопка ведёт на звонок.
-export const MAX_LINK = '';
+// Постоянная ссылка на профиль MAX. Ссылки по номеру у MAX нет — этот адрес
+// выдаёт само приложение (Профиль → Поделиться). Если заказчик задаст себе
+// username, ссылку можно будет заменить на короткую вида max.ru/scandimebel.
+export const MAX_LINK =
+  'https://max.ru/u/f9LHodD0cOLQ6MHU_sNlo3qcCIFIgDjd5Q9zn5bdZOIcSYB49yi1yTtdh78';
