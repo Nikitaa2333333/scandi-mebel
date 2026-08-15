@@ -22,7 +22,7 @@ import {
 
 // Реквизиты, которых заказчик ещё не дал, просто не печатаем
 const requisites = [
-  OPERATOR_LEGAL_NAME && `Наименование: ${OPERATOR_LEGAL_NAME}`,
+  OPERATOR_LEGAL_NAME,
   OPERATOR_INN && `ИНН: ${OPERATOR_INN}`,
   OPERATOR_OGRN && `ОГРН/ОГРНИП: ${OPERATOR_OGRN}`,
   OPERATOR_ADDRESS && `Адрес: ${OPERATOR_ADDRESS}`,
