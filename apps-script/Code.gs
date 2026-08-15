@@ -1,115 +1,123 @@
 /**
- * Приём заявок с сайта Scandi Мебель.
+ * Приём заявок с сайта Scandi Мебель: строка в Google Таблицу + Telegram.
  *
- * Что делает: пишет заявку строкой в Google-таблицу и сразу шлёт её в Telegram.
- * Зачем через Google, а не с сайта напрямую: скрипт выполняется на серверах
- * Google, у которых нет проблем с доступом к api.telegram.org. Плюс в таблице
- * остаётся журнал — если Telegram однажды не доставит, заявка не потеряется.
+ * Почему отправка отсюда, а не с сайта: api.telegram.org в РФ недоступен
+ * из браузера посетителя, а серверам Google — доступен. Плюс токен лежит
+ * в Script Properties и на сайт не попадает.
  *
- * Установка — см. README.md рядом с этим файлом.
+ * НАСТРОЙКА (владелец, один раз):
+ *  1. Project Settings (шестерёнка) → Script Properties:
+ *       TELEGRAM_BOT_TOKEN = токен от @BotFather
+ *       TELEGRAM_CHAT_IDS  = id через запятую, напр. 111,222
+ *  2. Выбрать вверху функцию authorize → ▶ Выполнить → выдать разрешения.
+ *     Без этого права UrlFetchApp нет, и Telegram МОЛЧА не отправляется,
+ *     хотя скрипт отвечает «ок» — выглядит как успех, но сообщений нет.
+ *  3. Deploy → New deployment → Web app → Execute as: Me,
+ *     Who has access: Anyone → скопировать URL /exec.
+ *
+ * ВАЖНО: после любой правки кода — Deploy → Manage deployments → карандаш →
+ * Version: New version → Deploy. Иначе /exec продолжит отдавать старый код.
  */
 
-// ─── Настройки ──────────────────────────────────────────────────────────
-// Токен и chat id храним в Script Properties, а НЕ в коде: файл скрипта
-// виден всем, у кого есть доступ к таблице.
-// Задать: Project Settings → Script Properties.
-//   TELEGRAM_BOT_TOKEN — токен от @BotFather
-//   TELEGRAM_CHAT_IDS  — id получателей через запятую
-const SHEET_NAME = 'Заявки';
+var SHEET_NAME = 'Заявки';
 
-// ─── Приём POST с сайта ─────────────────────────────────────────────────
 function doPost(e) {
   try {
-    // Сайт шлёт text/plain (иначе браузер потребует CORS-preflight,
-    // а Apps Script на него не отвечает), поэтому разбираем тело сами.
-    const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    // Сайт шлёт тело без Content-Type: application/json — иначе браузер
+    // отправит preflight OPTIONS, который Apps Script не обрабатывает.
+    var d = JSON.parse((e && e.postData && e.postData.contents) || '{}');
 
-    // Honeypot: поле скрыто от человека и видно только ботам. Заполнено — тихо
-    // отвечаем «успех», ничего не записывая: бот не поймёт, что его отсекли.
-    if (data.website) {
-      return json({ ok: true });
-    }
+    // Honeypot: поле скрыто от человека и видно только ботам. Заполнено —
+    // тихо отвечаем «успех», ничего не записывая и не отправляя.
+    if (d.website) return ok();
 
-    const name = String(data.name || '').trim();
-    const phone = String(data.phone || '').trim();
-    const task = String(data.task || '').trim();
+    var name = String(d.name || '').trim();
+    var phone = String(d.phone || '').trim();
+    if (!name || !phone) return ok();
 
-    if (!name || !phone) {
-      return json({ ok: false, error: 'missing_fields' });
-    }
+    // Сначала уведомление: даже если запись в таблицу упадёт, звонок уйдёт
+    notifyTelegram(d);
+    appendRow(d);
 
-    saveToSheet(name, phone, task);
-    sendToTelegram(name, phone, task);
-
-    return json({ ok: true });
+    return ok();
   } catch (err) {
     console.error('Ошибка обработки заявки', err);
-    return json({ ok: false, error: 'server_error' });
+    return ok();
   }
 }
 
-// Проверка, что веб-приложение вообще живо: открыть URL в браузере
+// Открыть URL в браузере — быстрая проверка, что веб-приложение живо
 function doGet() {
-  return json({ ok: true, service: 'scandi-lead' });
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok: true, service: 'scandi-lead' })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 
-// ─── Таблица ────────────────────────────────────────────────────────────
-function saveToSheet(name, phone, task) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
+function notifyTelegram(d) {
+  // try/catch, чтобы сбой Telegram не мешал записи в таблицу. Но помните:
+  // если не выдано разрешение UrlFetchApp, ошибка гасится здесь молча.
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var token = props.getProperty('TELEGRAM_BOT_TOKEN');
+    var chats = (props.getProperty('TELEGRAM_CHAT_IDS') || '').split(',');
+    if (!token) return;
 
-  // Лист и шапку создаём при первой заявке — руками готовить ничего не нужно
+    var text =
+      '🪑 Новая заявка — Scandi Мебель\n\n' +
+      '👤 Имя: ' + (d.name || '') + '\n' +
+      '📞 Телефон: ' + (d.phone || '') +
+      (d.task ? '\n📝 Что нужно: ' + d.task : '') +
+      (d.page_url ? '\n🔗 ' + d.page_url : '');
+
+    chats.forEach(function (id) {
+      id = id.trim();
+      if (!id) return;
+      UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'post',
+        payload: { chat_id: id, text: text },
+        muteHttpExceptions: true
+      });
+    });
+  } catch (err) {}
+}
+
+function appendRow(d) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+
+  // Лист и шапку создаём при первой заявке — готовить руками ничего не нужно
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['Дата', 'Имя', 'Телефон', 'Что нужно']);
-    sheet.getRange(1, 1, 1, 4).setFontWeight('bold');
+    sheet.appendRow(['Дата', 'Имя', 'Телефон', 'Что нужно', 'Страница', 'Источник']);
+    sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
 
-  sheet.appendRow([new Date(), name, phone, task]);
+  sheet.appendRow([
+    new Date(),
+    d.name || '',
+    "'" + (d.phone || ''),   // апостроф — иначе «+7…» станет формулой или числом
+    d.task || '',
+    d.page_url || '',
+    d.referrer || ''
+  ]);
 }
 
-// ─── Telegram ───────────────────────────────────────────────────────────
-function sendToTelegram(name, phone, task) {
-  const props = PropertiesService.getScriptProperties();
-  const token = props.getProperty('TELEGRAM_BOT_TOKEN');
-  const chatIds = String(props.getProperty('TELEGRAM_CHAT_IDS') || '')
-    .split(',')
-    .map(function (id) { return id.trim(); })
-    .filter(String);
-
-  if (!token || !chatIds.length) {
-    // Заявка уже в таблице, поэтому не роняем ответ сайту — только пишем в лог
-    console.error('TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_IDS не заданы в Script Properties');
-    return;
-  }
-
-  const text = [
-    '🪑 Новая заявка — Scandi Мебель',
-    'Имя: ' + name,
-    'Телефон: ' + phone,
-    task ? 'Что нужно: ' + task : null,
-  ].filter(String).join('\n');
-
-  chatIds.forEach(function (chatId) {
-    try {
-      UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify({ chat_id: chatId, text: text }),
-        // Без этого ошибка Telegram выбрасывает исключение и обрывает
-        // рассылку остальным получателям
-        muteHttpExceptions: true,
-      });
-    } catch (err) {
-      console.error('Не удалось отправить в Telegram, chat_id ' + chatId, err);
-    }
+/**
+ * Выдать разрешения. Выбрать эту функцию вверху и нажать ▶ Выполнить.
+ * Активирует право UrlFetchApp — без него Telegram молча не отправляется.
+ * Если Script Properties уже заполнены, придёт проверочное сообщение:
+ * пришло — значит право выдано и связь с Telegram есть.
+ */
+function authorize() {
+  SpreadsheetApp.getActiveSpreadsheet().getName();
+  notifyTelegram({
+    name: 'Проверка связи',
+    phone: 'настройка формы',
+    task: 'Если вы видите это сообщение — Telegram подключён'
   });
 }
 
-// ─── Вспомогательное ────────────────────────────────────────────────────
-function json(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
-    ContentService.MimeType.JSON
-  );
+function ok() {
+  return ContentService.createTextOutput('ok');
 }

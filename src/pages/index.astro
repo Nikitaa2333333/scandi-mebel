@@ -505,23 +505,27 @@ const includes = [
 
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const data = Object.fromEntries(new FormData(form).entries());
+    // Откуда пришла заявка — попадёт в таблицу вместе с контактами
+    data.page_url = location.href;
+    data.referrer = document.referrer;
 
     submitBtn?.setAttribute('disabled', '');
     try {
-      // Адрес приёма заявок: на Vercel это своя функция по относительному
-      // пути, на SprintHost — абсолютный адрес функции Vercel (статический
-      // хостинг Node-функции не выполняет). Подставляется при сборке.
+      // Адрес приёма заявок подставляется при сборке: Google Apps Script
+      // пишет заявку в таблицу и сам шлёт её в Telegram. Отправлять в
+      // Telegram прямо из браузера нельзя — в РФ api.telegram.org недоступен
+      // без VPN, и уведомление молча не доходит.
       const endpoint = import.meta.env.PUBLIC_LEAD_ENDPOINT || '/api/lead';
-      // ВАЖНО: content-type именно text/plain, хотя шлём JSON.
-      // С application/json браузер сначала отправляет preflight OPTIONS,
-      // а Google Apps Script на него не отвечает — запрос падает на CORS
-      // ещё до отправки. text/plain делает запрос «простым», без preflight.
-      const res = await fetch(endpoint, {
+
+      // mode: 'no-cors' и БЕЗ Content-Type: application/json — иначе браузер
+      // шлёт preflight OPTIONS, который Apps Script не обрабатывает, и запрос
+      // падает. Ответ при этом непрозрачный (прочитать нельзя), поэтому
+      // успех = запрос ушёл; запись и отправку делает уже скрипт.
+      await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        mode: 'no-cors',
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('request failed');
       window.location.href = form.action;
     } catch {
       errorEl?.removeAttribute('hidden');

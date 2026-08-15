@@ -31,9 +31,10 @@ jobs:
         env:
           # Боевой адрес: из него собираются canonical, sitemap и Open Graph.
           SITE_URL: https://scandi-chair.ru
-          # Приём заявок будет на Google Apps Script. Когда появится адрес
-          # веб-приложения — подставить сюда, форма подхватит его при сборке.
-          # PUBLIC_LEAD_ENDPOINT: https://script.google.com/macros/s/.../exec
+          # Приём заявок: Google Apps Script пишет заявку в таблицу и сам
+          # шлёт её в Telegram. Из браузера в Telegram слать нельзя —
+          # в РФ api.telegram.org недоступен без VPN.
+          PUBLIC_LEAD_ENDPOINT: https://script.google.com/macros/s/AKfycbyAdyDB1IhvXJB8ChTPCcy-PQH9kpkDMxoA0_ajVLN2LlqNlvjWZN6f55RwhQAh26CI/exec
         run: npx astro build
 
       - name: Load SSH key
