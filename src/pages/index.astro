@@ -385,7 +385,11 @@ const includes = [
           </label>
           <label class="form__check">
             <input type="checkbox" required />
-            <span class="small">Согласен(на) на обработку персональных данных</span>
+            {/* Ссылка на политику обязана быть у самой галочки: согласие
+                считается данным, только если человек мог прочитать, на что
+                соглашается. Открываем в новой вкладке, чтобы не терять
+                заполненную форму. */}
+            <span class="small">Согласен(на) на <a href={asset('policy')} target="_blank" rel="noopener">обработку персональных данных</a></span>
           </label>
           <button class="btn" type="submit">Отправить</button>
           <p class="form__error small" hidden>

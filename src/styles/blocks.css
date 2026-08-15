@@ -402,6 +402,12 @@
   margin-top: 4px;
   accent-color: var(--c-green-deep);
 }
+/* Ссылка на политику внутри подписи к галочке: базовый стиль сайта
+   подчёркивание снимает, а здесь она обязана читаться как ссылка */
+.form__check a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .form .btn { align-self: flex-start; }
 
 /* Форма на тёмной секции */
