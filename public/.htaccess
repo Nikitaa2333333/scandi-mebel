@@ -1,0 +1,80 @@
+# Настройки Apache на хостинге. Файл лежит в public/ — Astro копирует его
+# в корень сборки, оттуда rsync кладёт на SprintHost.
+#
+# Три задачи: склейка зеркал, кэш и сжатие.
+
+AddDefaultCharset UTF-8
+
+# Листинг папок наружу не отдаём
+Options -Indexes
+
+# ── Зеркала ────────────────────────────────────────────────────────────
+# http, https, www и без-www Яндекс считает РАЗНЫМИ сайтами: вес ссылок
+# делится на четыре, склейка без 301 тянется месяцами. Главное зеркало —
+# https без www, остальные три ведут на него.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # На протокол: адрес назначения прописан целиком, поэтому http://www...
+  # доезжает за ОДИН переход, а не двумя (http://www → https://www → https).
+  # Вторая проверка — для случая, когда SSL снимает прокси хостинга и
+  # переменная HTTPS до Apache не доходит: без неё редирект зациклится.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://scandi-chair.ru%{REQUEST_URI} [R=301,L]
+
+  # На www
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://scandi-chair.ru%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# ── Кэш ────────────────────────────────────────────────────────────────
+# Хостинг по умолчанию не шлёт Cache-Control вообще, и браузер кэширует
+# на своё усмотрение. Для html это ломает админку: клиент добавил модель,
+# сайт пересобрался, а у него в браузере лежит старая страница.
+#
+# Правило простое: html — всегда перепроверять, всё остальное — надолго.
+# Так можно, потому что css и js Astro собирает в /_astro/ с хэшем в имени
+# (меняется содержимое — меняется имя), а фото админка называет с меткой
+# времени. Новый файл никогда не приезжает под старым именем.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                      "access plus 1 hour"
+
+  ExpiresByType text/html             "access plus 0 seconds"
+
+  ExpiresByType text/css              "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2            "access plus 1 year"
+
+  # Картинки и видео — месяц. Не год: имена не хэшированные, и если фото
+  # когда-нибудь заменят руками под тем же именем, ждать год обидно.
+  ExpiresByType image/webp            "access plus 1 month"
+  ExpiresByType image/jpeg            "access plus 1 month"
+  ExpiresByType image/png             "access plus 1 month"
+  ExpiresByType image/svg+xml         "access plus 1 month"
+  ExpiresByType video/mp4             "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # no-cache — это НЕ «не кэшировать». Копия у браузера остаётся, но перед
+  # показом он спрашивает сервер «не поменялось?» и обычно получает 304
+  # без тела. Трафика почти ноль, зато свежесть гарантирована.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Хэшированные css/js можно не перепроверять вообще
+  <FilesMatch "\.(css|js|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# ── Сжатие ─────────────────────────────────────────────────────────────
+# Картинки и видео уже сжаты — их не трогаем, повторное сжатие только
+# греет процессор.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE application/xml image/svg+xml
+</IfModule>
