@@ -1,0 +1,75 @@
+[
+  {
+    "name": "Сканди",
+    "desc": "Стулья и столы. Ткань, цвет каркаса и размеры стола — на выбор.",
+    "photos": ["photos/scandi-1.webp", "photos/scandi-2.webp", "photos/scandi-3.webp"]
+  },
+  {
+    "name": "Шик",
+    "desc": "Гнутая спинка и тёплый орех. Делаем с мягкой обивкой, красим в любой цвет.",
+    "photos": ["photos/shik-1.webp", "photos/shik-2.webp", "photos/shik-3.webp"]
+  },
+  {
+    "name": "Терезза",
+    "desc": "Овальная спинка на тонком каркасе. Ткань и цвет — под клиента.",
+    "photos": ["photos/terezza-1.webp"]
+  },
+  {
+    "name": "Леон",
+    "desc": "Комплект: стол и стулья. Сидушка мягкая или деревянная, цвет любой.",
+    "photos": [
+      "photos/leon-set-1.webp",
+      "photos/leon-set-2.webp",
+      "photos/leon-set-3.webp",
+      "photos/leon-1.webp"
+    ],
+    "wide": true
+  },
+  {
+    "name": "Хермес",
+    "desc": "Стулья и столы. Стол изготавливаем по вашим размерам.",
+    "photos": ["photos/hermes-1.webp", "photos/hermes-2.webp", "photos/hermes-3.webp"]
+  },
+  {
+    "name": "Мазерати",
+    "desc": "Мягкие стулья с открытой спинкой и стол «Луч» с лучевым шпоном.",
+    "photos": ["photos/mazerati-1.webp", "photos/mazerati-3.webp", "photos/mazerati-2.webp"],
+    "wide": true
+  },
+  {
+    "name": "Фоджи",
+    "desc": "Круглая мягкая спинка и подлокотник из массива. Ткань — на выбор.",
+    "photos": ["photos/foji-1.webp", "photos/foji-2.webp"]
+  },
+  {
+    "name": "Сканди барные",
+    "desc": "Барные и полубарные — два роста под стойку или кухонный остров.",
+    "photos": [
+      "photos/bar-1.webp",
+      "photos/bar-2.webp",
+      "photos/bar-3.webp",
+      "photos/bar-4.webp"
+    ]
+  },
+  {
+    "name": "Майбах",
+    "desc": "Стол и стулья комплектом. Цвет, ткань и размер стола — под вас.",
+    "photos": ["photos/maybah-1.webp", "photos/maybah-2.webp", "photos/maybah-3.webp"]
+  },
+  {
+    "name": "Каспий",
+    "desc": "Лаконичная форма, массив дерева, обивка на выбор.",
+    "photos": ["photos/kaspiy-1.webp"]
+  },
+  {
+    "name": "Скарлет",
+    "desc": "Гарнитур для столовой: цвет и ткань согласуем под интерьер.",
+    "photos": ["photos/skarlet-1.webp", "photos/skarlet-2.webp", "photos/skarlet-3.webp"],
+    "wide": true
+  },
+  {
+    "name": "Лагуна",
+    "desc": "Любой цвет каркаса и любая ткань обивки — под ваш интерьер.",
+    "photos": ["photos/chair-laguna.webp"]
+  }
+]

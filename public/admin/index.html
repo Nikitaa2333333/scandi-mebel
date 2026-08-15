@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Каталог — админка</title>
+<style>
+  /* Панель намеренно вне дизайн-системы сайта: это служебный интерфейс,
+     он не должен тянуть за собой глобальные стили и шрифты. */
+  :root {
+    --bg: #14110f;
+    --surface: #1e1a17;
+    --line: #322c27;
+    --text: #fff;
+    --accent: #c8703c;
+    --danger: #e2564a;
+    --pad: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: clamp(16px, 4vw, 40px);
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  .sub { margin: 0 0 28px; max-width: 62ch; }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: var(--pad);
+    margin-bottom: 20px;
+  }
+  label { display: block; margin-bottom: 6px; }
+  input[type=text], input[type=password], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font: inherit;
+  }
+  input::placeholder, textarea::placeholder { color: #8a8078; }
+  textarea { resize: vertical; min-height: 68px; }
+  .field { margin-bottom: 14px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .check { display: flex; gap: 8px; align-items: center; }
+  .check input { width: 18px; height: 18px; accent-color: var(--accent); }
+  button {
+    padding: 11px 18px;
+    border: 0;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: default; }
+  button.ghost { background: transparent; border: 1px solid var(--line); }
+  button.link {
+    background: none; padding: 0; color: var(--danger);
+    text-decoration: underline; font-size: 14px;
+  }
+  .drop {
+    border: 1px dashed var(--line);
+    padding: 22px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .drop.over { border-color: var(--accent); }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .thumb { position: relative; width: 84px; }
+  .thumb img { width: 84px; height: 112px; object-fit: cover; display: block; }
+  .thumb button {
+    position: absolute; top: 0; right: 0;
+    width: 24px; height: 24px; padding: 0;
+    background: rgba(0 0 0 / .65); line-height: 1;
+  }
+  .status { margin-top: 14px; min-height: 24px; font-size: 15px; }
+  .status.err { color: var(--danger); }
+  .status a { color: var(--accent); }
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .item { display: flex; gap: 12px; align-items: center; }
+  .item img { width: 48px; height: 64px; object-fit: cover; background: var(--bg); }
+  .item .name { flex: 1; }
+  .item .count { font-size: 14px; color: #a99e95; }
+  .hint { font-size: 14px; max-width: 62ch; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Каталог «Scandi Мебель»</h1>
+  <p class="sub">
+    Добавляете модель — фото уходят в репозиторий, сайт пересобирается сам.
+    Обновление на scandi-chair.ru появляется через 1–2 минуты.
+  </p>
+
+  <section id="auth">
+    <h2>Доступ</h2>
+    <div class="field">
+      <label for="token">Токен GitHub</label>
+      <input id="token" type="password" placeholder="github_pat_..." autocomplete="off" />
+    </div>
+    <div class="row">
+      <button id="save-token">Войти</button>
+      <button class="ghost" id="forget" hidden>Выйти</button>
+    </div>
+    <p class="status" id="auth-status"></p>
+  </section>
+
+  <section id="form" hidden>
+    <h2>Новая модель</h2>
+    <div class="field">
+      <label for="name">Название</label>
+      <input id="name" type="text" placeholder="Например: Осло" />
+    </div>
+    <div class="field">
+      <label for="desc">Описание (можно не заполнять)</label>
+      <textarea id="desc" placeholder="Ткань, цвет каркаса и размеры — на выбор."></textarea>
+    </div>
+    <div class="field">
+      <label>Фотографии</label>
+      <div class="drop" id="drop">
+        Перетащите фото сюда или нажмите, чтобы выбрать
+        <input id="files" type="file" accept="image/*" multiple hidden />
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="field check">
+      <input id="wide" type="checkbox" />
+      <label for="wide" style="margin:0">Крупная карточка — на две колонки</label>
+    </div>
+    <button id="publish">Опубликовать</button>
+    <p class="status" id="status"></p>
+  </section>
+
+  <section id="existing" hidden>
+    <h2>В каталоге сейчас</h2>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+
+<script type="module">
+// ── Как это работает ────────────────────────────────────────────────────
+// Бэкенда нет. Страница напрямую разговаривает с GitHub API от имени
+// токена, который лежит только в браузере клиента (localStorage).
+// Одна публикация = ОДИН коммит через Git Data API (блобы → дерево →
+// коммит → ветка). Через contents-API каждый файл был бы отдельным
+// коммитом, то есть четыре сборки и четыре выкладки подряд.
+// Пуш в main запускает .github/workflows/deploy.yml, он собирает Astro
+// и заливает dist на SprintHost.
+const OWNER  = 'Nikitaa2333333';
+const REPO   = 'scandi-mebel';
+const BRANCH = 'main';
+const MODELS = 'src/data/models.json';
+const PHOTOS = 'public/photos/';       // куда кладём файлы в репозитории
+const PREFIX = 'photos/';              // как на них ссылается каталог
+
+// Фото со смартфона весит 3–8 МБ и приезжает боком. Пережимаем в webp
+// прямо в браузере: репозиторий не пухнет, сайт не тормозит, а
+// imageOrientation чинит поворот по EXIF.
+const MAX_W = 1400;
+const QUALITY = 0.82;
+
+const $ = (id) => document.getElementById(id);
+const els = {
+  token: $('token'), saveToken: $('save-token'), forget: $('forget'),
+  authStatus: $('auth-status'), form: $('form'), existing: $('existing'),
+  name: $('name'), desc: $('desc'), wide: $('wide'), drop: $('drop'),
+  files: $('files'), thumbs: $('thumbs'), publish: $('publish'),
+  status: $('status'), list: $('list'),
+};
+
+let token = localStorage.getItem('gh-token') || '';
+let models = [];      // текущий models.json
+let picked = [];      // {file, url} выбранные и ещё не отправленные фото
+
+// ── GitHub API ──────────────────────────────────────────────────────────
+async function gh(path, opts = {}) {
+  const res = await fetch('https://api.github.com' + path, {
+    ...opts,
+    headers: {
+      Authorization: 'Bearer ' + token,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.body ? { 'Content-Type': 'application/json' } : {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    let msg = text;
+    try { msg = JSON.parse(text).message || text; } catch {}
+    throw new Error(`GitHub ${res.status}: ${msg}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+const json = (body) => ({ method: 'POST', body: JSON.stringify(body) });
+
+// base64 ↔ UTF-8: atob/btoa работают с байтами, а в названиях кириллица
+const b64encode = (bytes) => {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+};
+const decodeUtf8B64 = (b64) =>
+  new TextDecoder().decode(
+    Uint8Array.from(atob(b64.replace(/\s/g, '')), (c) => c.charCodeAt(0))
+  );
+
+// ── Вход ────────────────────────────────────────────────────────────────
+async function signIn() {
+  setStatus(els.authStatus, 'Проверяем доступ…');
+  try {
+    const repo = await gh(`/repos/${OWNER}/${REPO}`);
+    if (!repo.permissions?.push) {
+      throw new Error('у токена нет права записи в репозиторий');
+    }
+    localStorage.setItem('gh-token', token);
+    els.token.value = '';
+    els.token.placeholder = '••••••••••••';
+    els.forget.hidden = false;
+    els.form.hidden = false;
+    els.existing.hidden = false;
+    setStatus(els.authStatus, 'Доступ есть.');
+    await loadModels();
+  } catch (e) {
+    token = '';
+    setStatus(els.authStatus, String(e.message), true);
+  }
+}
+
+async function loadModels() {
+  const file = await gh(`/repos/${OWNER}/${REPO}/contents/${MODELS}?ref=${BRANCH}`);
+  models = JSON.parse(decodeUtf8B64(file.content));
+  renderList();
+}
+
+// ── Выбор фото ──────────────────────────────────────────────────────────
+function addFiles(fileList) {
+  for (const file of fileList) {
+    if (!file.type.startsWith('image/')) continue;
+    picked.push({ file, url: URL.createObjectURL(file) });
+  }
+  renderThumbs();
+}
+
+function renderThumbs() {
+  els.thumbs.replaceChildren(
+    ...picked.map((p, i) => {
+      const box = document.createElement('div');
+      box.className = 'thumb';
+      const img = document.createElement('img');
+      img.src = p.url;
+      img.alt = '';
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.textContent = '×';
+      del.title = 'Убрать';
+      del.onclick = () => {
+        URL.revokeObjectURL(p.url);
+        picked.splice(i, 1);
+        renderThumbs();
+      };
+      box.append(img, del);
+      return box;
+    })
+  );
+}
+
+// ── Пережатие ───────────────────────────────────────────────────────────
+async function toWebp(file) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const scale = Math.min(1, MAX_W / bitmap.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', QUALITY));
+  if (!blob) throw new Error('браузер не смог пережать фото в webp');
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+// Имя файла: латиница + метка времени. Уникальность важна не для порядка,
+// а для кэша — старый файл с тем же именем браузеры и CDN отдавали бы из
+// кэша, и новое фото не показалось бы.
+const MAP = {
+  а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',
+  л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',
+  ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya',
+};
+const slugify = (s) =>
+  s.toLowerCase().split('').map((c) => (c in MAP ? MAP[c] : c)).join('')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'model';
+
+// ── Публикация: один коммит на всё ──────────────────────────────────────
+async function publish() {
+  const name = els.name.value.trim();
+  if (!name) return setStatus(els.status, 'Впишите название.', true);
+  if (!picked.length) return setStatus(els.status, 'Добавьте хотя бы одно фото.', true);
+
+  els.publish.disabled = true;
+  try {
+    const stamp = Date.now().toString(36);
+    const slug = slugify(name);
+
+    // 1. Пережимаем и заливаем фото как блобы
+    const paths = [];
+    const blobs = [];
+    for (let i = 0; i < picked.length; i++) {
+      setStatus(els.status, `Готовим фото ${i + 1} из ${picked.length}…`);
+      const bytes = await toWebp(picked[i].file);
+      const path = `${slug}-${stamp}-${i + 1}.webp`;
+      const blob = await gh(
+        `/repos/${OWNER}/${REPO}/git/blobs`,
+        json({ content: b64encode(bytes), encoding: 'base64' })
+      );
+      paths.push(PREFIX + path);
+      blobs.push({ path: PHOTOS + path, mode: '100644', type: 'blob', sha: blob.sha });
+    }
+
+    // 2. Свежий models.json — перечитываем перед записью, чтобы не затереть
+    //    правку, сделанную с другого устройства
+    setStatus(els.status, 'Обновляем каталог…');
+    await loadModels();
+    const entry = { name, photos: paths };
+    const desc = els.desc.value.trim();
+    if (desc) entry.desc = desc;
+    if (els.wide.checked) entry.wide = true;
+    models.push(entry);
+
+    await commit(`Каталог: добавлена модель «${name}»`, [
+      ...blobs,
+      await modelsBlob(),
+    ]);
+
+    picked.forEach((p) => URL.revokeObjectURL(p.url));
+    picked = [];
+    els.name.value = '';
+    els.desc.value = '';
+    els.wide.checked = false;
+    renderThumbs();
+    renderList();
+    done(`Модель «${name}» добавлена.`);
+  } catch (e) {
+    setStatus(els.status, String(e.message), true);
+  } finally {
+    els.publish.disabled = false;
+  }
+}
+
+async function modelsBlob() {
+  const blob = await gh(
+    `/repos/${OWNER}/${REPO}/git/blobs`,
+    json({ content: JSON.stringify(models, null, 2) + '\n', encoding: 'utf-8' })
+  );
+  return { path: MODELS, mode: '100644', type: 'blob', sha: blob.sha };
+}
+
+async function commit(message, entries) {
+  const ref = await gh(`/repos/${OWNER}/${REPO}/git/ref/heads/${BRANCH}`);
+  const parent = ref.object.sha;
+  const head = await gh(`/repos/${OWNER}/${REPO}/git/commits/${parent}`);
+  const tree = await gh(
+    `/repos/${OWNER}/${REPO}/git/trees`,
+    json({ base_tree: head.tree.sha, tree: entries })
+  );
+  const made = await gh(
+    `/repos/${OWNER}/${REPO}/git/commits`,
+    json({ message, tree: tree.sha, parents: [parent] })
+  );
+  await gh(`/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ sha: made.sha }),
+  });
+}
+
+// ── Список и удаление ───────────────────────────────────────────────────
+function renderList() {
+  els.list.replaceChildren(
+    ...models.map((m, i) => {
+      const row = document.createElement('div');
+      row.className = 'item';
+
+      const img = document.createElement('img');
+      img.src = '/' + m.photos[0];
+      img.alt = '';
+      img.loading = 'lazy';
+
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = m.name;
+
+      const count = document.createElement('span');
+      count.className = 'count';
+      count.textContent = `${m.photos.length} фото`;
+
+      const del = document.createElement('button');
+      del.className = 'link';
+      del.textContent = 'убрать';
+      del.onclick = () => remove(i);
+
+      row.append(img, name, count, del);
+      return row;
+    })
+  );
+}
+
+async function remove(index) {
+  const model = models[index];
+  if (!confirm(`Убрать «${model.name}» из каталога?`)) return;
+  try {
+    setStatus(els.status, 'Убираем…');
+    await loadModels();
+    // Ищем заново по имени: пока страница была открыта, список мог измениться
+    const at = models.findIndex((m) => m.name === model.name);
+    if (at === -1) throw new Error('модель уже убрали с другого устройства');
+    models.splice(at, 1);
+    await commit(`Каталог: убрана модель «${model.name}»`, [await modelsBlob()]);
+    renderList();
+    done(`Модель «${model.name}» убрана.`);
+  } catch (e) {
+    setStatus(els.status, String(e.message), true);
+    await loadModels();
+  }
+}
+
+// ── Мелочи ──────────────────────────────────────────────────────────────
+function setStatus(el, text, isError = false) {
+  el.textContent = text;
+  el.classList.toggle('err', isError);
+}
+
+function done(text) {
+  els.status.classList.remove('err');
+  els.status.replaceChildren(
+    document.createTextNode(text + ' Сайт пересобирается — обновление на scandi-chair.ru через 1–2 минуты. '),
+    Object.assign(document.createElement('a'), {
+      href: `https://github.com/${OWNER}/${REPO}/actions`,
+      target: '_blank',
+      rel: 'noopener',
+      textContent: 'Ход сборки',
+    })
+  );
+}
+
+els.saveToken.onclick = () => {
+  token = els.token.value.trim();
+  if (token) signIn();
+};
+els.token.onkeydown = (e) => { if (e.key === 'Enter') els.saveToken.click(); };
+els.forget.onclick = () => {
+  localStorage.removeItem('gh-token');
+  location.reload();
+};
+els.publish.onclick = publish;
+els.drop.onclick = () => els.files.click();
+els.files.onchange = () => { addFiles(els.files.files); els.files.value = ''; };
+['dragenter', 'dragover'].forEach((ev) =>
+  els.drop.addEventListener(ev, (e) => { e.preventDefault(); els.drop.classList.add('over'); })
+);
+['dragleave', 'drop'].forEach((ev) =>
+  els.drop.addEventListener(ev, () => els.drop.classList.remove('over'))
+);
+els.drop.addEventListener('drop', (e) => { e.preventDefault(); addFiles(e.dataTransfer.files); });
+
+if (token) signIn();
+</script>
+</body>
+</html>

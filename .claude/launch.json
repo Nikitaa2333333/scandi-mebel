@@ -5,8 +5,8 @@
       "name": "scandi",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 4331,
-      "url": "http://127.0.0.1:4331"
+      "port": 4357,
+      "url": "http://127.0.0.1:4357"
     }
   ]
 }

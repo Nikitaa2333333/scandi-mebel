@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
 
+# Админка каталога — служебная страница, в поиске ей делать нечего
+Disallow: /admin/
+
 # Карта сайта — с неё начинают и Яндекс, и Google
 Sitemap: https://scandi-chair.ru/sitemap-index.xml
