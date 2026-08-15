@@ -30,6 +30,18 @@ const schema = {
   image: ogImage.href,
   priceRange: '$$',
   telephone: '+79861112230',
+  // Адрес и зона обслуживания: без них поисковик не привязывает мастерскую
+  // к региону и не показывает её по локальным запросам
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'RU',
+    addressRegion: 'Республика Дагестан',
+    addressLocality: 'Буйнакский район',
+  },
+  areaServed: [
+    { '@type': 'AdministrativeArea', name: 'Республика Дагестан' },
+    { '@type': 'Country', name: 'Россия' },
+  ],
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+79861112230',

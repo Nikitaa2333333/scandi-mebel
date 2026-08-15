@@ -14,7 +14,12 @@ import { asset } from '../lib/asset';
     </div>
   </div>
   <div class="container footer__row">
-    <p class="small">Scandi Мебель, {new Date().getFullYear()}</p>
+    {/* Адрес производства в подвале работает на локальный поиск и на доверие:
+        он выглядит серьёзнее, чем один мобильный номер */}
+    <p class="small">
+      Scandi Мебель, {new Date().getFullYear()}<br />
+      Производство: Буйнакский район, Республика Дагестан
+    </p>
     <nav class="footer__links small">
       <!-- TODO: подставить реальные контакты — заказчик их пока не давал -->
       <a href="#form">Оставить заявку</a>
