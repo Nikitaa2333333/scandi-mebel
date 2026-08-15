@@ -193,6 +193,25 @@ async function gh(path, opts = {}) {
     const text = await res.text();
     let msg = text;
     try { msg = JSON.parse(text).message || text; } catch {}
+    // Самая частая беда — у токена выдано только чтение. Формулировка
+    // GitHub («Resource not accessible by personal access token») не
+    // подсказывает, что чинить, поэтому объясняем сами.
+    if (res.status === 403 && /not accessible by personal access token/i.test(msg)) {
+      throw new Error(
+        'У токена нет права записи. На GitHub: Settings → Developer settings → ' +
+        'Fine-grained tokens → ваш токен → Permissions → Repository permissions → ' +
+        'Contents → Read and write → Update. Затем войдите заново.'
+      );
+    }
+    if (res.status === 401) {
+      throw new Error('Токен не принят: неверный или отозван. Нужно выпустить новый.');
+    }
+    if (res.status === 404) {
+      throw new Error(
+        'Репозиторий токену не виден. В настройках токена: Repository access → ' +
+        `Only select repositories → ${REPO}.`
+      );
+    }
     throw new Error(`GitHub ${res.status}: ${msg}`);
   }
   return res.status === 204 ? null : res.json();
@@ -217,10 +236,8 @@ const decodeUtf8B64 = (b64) =>
 async function signIn() {
   setStatus(els.authStatus, 'Проверяем доступ…');
   try {
-    const repo = await gh(`/repos/${OWNER}/${REPO}`);
-    if (!repo.permissions?.push) {
-      throw new Error('у токена нет права записи в репозиторий');
-    }
+    await gh(`/repos/${OWNER}/${REPO}`);
+    await probeWrite();
     localStorage.setItem('gh-token', token);
     els.token.value = '';
     els.token.placeholder = '••••••••••••';
@@ -233,6 +250,18 @@ async function signIn() {
     token = '';
     setStatus(els.authStatus, String(e.message), true);
   }
+}
+
+// Видеть репозиторий и писать в него — разные права, и GET /repos о втором
+// не говорит: он возвращает роль АККАУНТА, поэтому у владельца репозитория
+// приходит push: true даже с read-only токеном. Проверяем запись честно —
+// создаём пустой блоб. Он ни на что не ссылается, в историю не попадает и
+// удаляется сборщиком мусора GitHub.
+async function probeWrite() {
+  await gh(
+    `/repos/${OWNER}/${REPO}/git/blobs`,
+    json({ content: '', encoding: 'utf-8' })
+  );
 }
 
 async function loadModels() {
