@@ -14,5 +14,9 @@ export default defineConfig({
   site: SITE,
   base: onPages ? '/scandi-mebel' : '/',
   compressHTML: true,
-  integrations: [sitemap()],
+  // Страница «Спасибо» из карты сайта исключена: она закрыта от индексации
+  // в Layout, и держать её в sitemap — значит звать робота туда, откуда его
+  // тут же разворачивают. Список адресов в карте должен совпадать с тем,
+  // что мы правда хотим видеть в поиске.
+  integrations: [sitemap({ filter: (page) => !page.endsWith('/thanks/') })],
 });

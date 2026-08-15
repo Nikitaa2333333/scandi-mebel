@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Scandi Мебель">
+  <!-- Знак сайта: S от «Scandi» на тёмно-зелёном из палитры (--c-green-deep).
+       Силуэт стула пробовали — на 16×16 он схлопывается в пятно, а фавикон
+       живёт именно в этом размере: вкладка, закладки, выдача Яндекса.
+       Буква держит форму на всех размерах. -->
+  <rect width="64" height="64" fill="#404f1d"/>
+  <path
+    d="M43 21 C43 13 21 13 21 24 C21 34 43 30 43 41 C43 52 21 52 21 43"
+    fill="none"
+    stroke="#f2f4ec"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+</svg>
