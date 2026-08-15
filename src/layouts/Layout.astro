@@ -4,6 +4,7 @@ import '../styles/global.css';
 import '../styles/blocks.css';
 // Скругления — надстройка поверх системы, обязана идти последней
 import '../styles/rounded.css';
+import models from '../data/models.json';
 
 interface Props {
   title: string;
@@ -48,10 +49,9 @@ const schema = {
     contactType: 'sales',
     availableLanguage: 'Russian',
   },
-  makesOffer: [
-    'Сканди', 'Шик', 'Терезза', 'Леон', 'Хермес', 'Мазерати',
-    'Фоджи', 'Сканди барные', 'Майбах', 'Каспий', 'Скарлет', 'Лагуна',
-  ].map((name) => ({
+  // Список берём из того же models.json, что и каталог: иначе клиент
+  // добавляет модель через админку, а в микроразметке её нет
+  makesOffer: models.map(({ name }) => ({
     '@type': 'Offer',
     itemOffered: {
       '@type': 'Product',
@@ -71,6 +71,24 @@ const schema = {
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical.href} />
+
+    <!-- Яндекс.Метрика, счётчик 111629542. Код взят из панели как есть.
+         is:inline обязателен: без него Astro утащит скрипт в бандл с
+         отложенной загрузкой, и счётчик перестанет ловить тех, кто
+         закрыл страницу сразу. Стоит в начале head по той же причине.
+         Роутер на сайте обычный, страница перезагружается — досылать
+         хит на смену маршрута не нужно. -->
+    <script type="text/javascript" is:inline>
+      (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111629542', 'ym');
+
+      ym(111629542, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/111629542" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
     <!-- Карточка при репосте в Telegram, ВК и мессенджеры -->
     <meta property="og:type" content="website" />
