@@ -35,6 +35,12 @@ jobs:
           # шлёт её в Telegram. Из браузера в Telegram слать нельзя —
           # в РФ api.telegram.org недоступен без VPN.
           PUBLIC_LEAD_ENDPOINT: https://script.google.com/macros/s/AKfycbyAdyDB1IhvXJB8ChTPCcy-PQH9kpkDMxoA0_ajVLN2LlqNlvjWZN6f55RwhQAh26CI/exec
+          # Токен подтверждения прав в Google Search Console. Лежит открыто,
+          # и это нормально: тег он всё равно печатает в html живого сайта,
+          # прочитать его может любой. В секреты не прячем — иначе выкладка
+          # молча ломается у любого, кто склонировал репозиторий без них.
+          # Менять при смене владельца ресурса в Search Console.
+          GOOGLE_SITE_VERIFICATION: 38CQpOjGg4tN4Un6BlH6NrJnUM0yiIB9hWrjThVU_tM
         run: npx astro build
 
       - name: Load SSH key
