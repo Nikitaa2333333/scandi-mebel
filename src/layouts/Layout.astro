@@ -4,7 +4,6 @@ import '../styles/global.css';
 import '../styles/blocks.css';
 // Скругления — надстройка поверх системы, обязана идти последней
 import '../styles/rounded.css';
-import models from '../data/models.json';
 import { asset } from '../lib/asset';
 
 interface Props {
@@ -60,17 +59,15 @@ const schema = {
     contactType: 'sales',
     availableLanguage: 'Russian',
   },
-  // Список берём из того же models.json, что и каталог: иначе клиент
-  // добавляет модель через админку, а в микроразметке её нет
-  makesOffer: models.map(({ name }) => ({
-    '@type': 'Offer',
-    itemOffered: {
-      '@type': 'Product',
-      name: `${name} — стулья и столы из массива на заказ`,
-      material: 'массив дерева',
-      brand: { '@type': 'Brand', name: 'Scandi Мебель' },
-    },
-  })),
+  // Моделей из каталога тут намеренно нет. Раньше они отдавались как
+  // makesOffer с Product внутри, и Google слал по ним критическую ошибку:
+  // у Product обязан быть offers, review или aggregateRating, иначе
+  // страница не допускается к расширенному показу. Цен у нас нет —
+  // мебель считается под размер, — а выдумывать их в разметке нельзя:
+  // это и обман покупателя, и прямой путь под санкции за несовпадение
+  // цены в сниппете и на сайте. Появится честная цена «от» — вернём
+  // модели через AggregateOffer с lowPrice, и тогда разметка будет
+  // валидной, а в сниппете появится цена.
 };
 ---
 
