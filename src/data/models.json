@@ -50,11 +50,7 @@
     "photos": [
       "photos/mazerati-1.webp",
       "photos/mazerati-3.webp",
-      "photos/mazerati-2.webp",
-      "photos/mazerati-4.webp",
-      "photos/mazerati-5.webp",
-      "photos/mazerati-6.webp",
-      "photos/mazerati-7.webp"
+      "photos/mazerati-2.webp"
     ],
     "wide": true
   },
@@ -63,8 +59,7 @@
     "desc": "Круглая мягкая спинка и подлокотник из массива. Ткань — на выбор.",
     "photos": [
       "photos/foji-1.webp",
-      "photos/foji-2.webp",
-      "photos/foji-3.webp"
+      "photos/foji-2.webp"
     ]
   },
   {
@@ -108,6 +103,31 @@
     "desc": "Любой цвет каркаса и любая ткань обивки — под ваш интерьер.",
     "photos": [
       "photos/chair-laguna.webp"
+    ]
+  },
+  {
+    "name": "Легион",
+    "desc": "Комплект: стулья с гнутым подлокотником из массива и стол к ним.",
+    "photos": [
+      "photos/legion-1.webp",
+      "photos/legion-2.webp",
+      "photos/legion-3.webp"
+    ]
+  },
+  {
+    "name": "Киото",
+    "desc": "Овальный стол на ламельных опорах и стулья в велюре. Цвет — под вас.",
+    "photos": [
+      "photos/kioto-1.webp"
+    ]
+  },
+  {
+    "name": "Додо",
+    "desc": "Округлая мягкая спинка на массивных ножках. Ткань и цвет — на выбор.",
+    "photos": [
+      "photos/dodo-1.webp",
+      "photos/dodo-2.webp",
+      "photos/dodo-3.webp"
     ]
   }
 ]
