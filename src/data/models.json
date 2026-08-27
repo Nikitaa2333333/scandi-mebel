@@ -50,7 +50,11 @@
     "photos": [
       "photos/mazerati-1.webp",
       "photos/mazerati-3.webp",
-      "photos/mazerati-2.webp"
+      "photos/mazerati-2.webp",
+      "photos/mazerati-4.webp",
+      "photos/mazerati-5.webp",
+      "photos/mazerati-6.webp",
+      "photos/mazerati-7.webp"
     ],
     "wide": true
   },
@@ -59,7 +63,8 @@
     "desc": "Круглая мягкая спинка и подлокотник из массива. Ткань — на выбор.",
     "photos": [
       "photos/foji-1.webp",
-      "photos/foji-2.webp"
+      "photos/foji-2.webp",
+      "photos/foji-3.webp"
     ]
   },
   {
